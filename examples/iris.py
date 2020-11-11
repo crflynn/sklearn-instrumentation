@@ -1,6 +1,5 @@
 import logging
 
-import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.decomposition import PCA
 from sklearn.ensemble import RandomForestClassifier
@@ -34,8 +33,8 @@ X, y = load_iris(return_X_y=True)
 instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
 classification_model.fit(X, y)
 
-instrumentor.instrument_estimator(classification_model)
-classification_model.predict(pd.DataFrame(X))
+instrumentor.instrument_packages(["sklearn"])
+classification_model.predict(X)
 
-instrumentor.uninstrument_estimator(classification_model)
-classification_model.predict(pd.DataFrame(X))
+# instrumentor.uninstrument_estimator(classification_model)
+# classification_model.predict(pd.DataFrame(X))

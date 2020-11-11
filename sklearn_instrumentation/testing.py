@@ -136,7 +136,7 @@ class SklearnInstrumentionAsserter:
 
     def assert_instrumented_package(self, package_name: str = "sklearn"):
         estimators = get_estimators_in_package(package_name=package_name)
-        for estimator_qualname, estimator in estimators.items():
+        for estimator in estimators:
             self.assert_instrumented_class(estimator=estimator)
 
     def assert_instrumented_class(self, estimator: Type[BaseEstimator]):
@@ -192,7 +192,7 @@ class SklearnInstrumentionAsserter:
 
     def assert_uninstrumented_package(self, package_name: str, full: bool = False):
         estimators = get_estimators_in_package(package_name=package_name)
-        for estimator_qualname, estimator in estimators.items():
+        for estimator in estimators:
             self.assert_uninstrumented_class(estimator=estimator, full=full)
 
     def assert_uninstrumented_class(

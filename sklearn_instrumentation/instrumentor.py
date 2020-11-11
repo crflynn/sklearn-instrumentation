@@ -5,7 +5,6 @@ from collections.abc import Sequence
 from typing import Callable
 from typing import List
 from typing import Type
-from typing import Union
 
 import numpy as np
 from sklearn.base import BaseEstimator
@@ -189,7 +188,7 @@ class SklearnInstrumentor:
         dkwargs = decorator_kwargs or self.decorator_kwargs
 
         instr = getattr(estimator, f"_skli_{method_name}", None)
-        if not instr:
+        if instr is None:
             instr = SklearnMethodInstrumentation(method)
             setattr(estimator, f"_skli_{method_name}", instr)
 
@@ -287,7 +286,7 @@ class SklearnInstrumentor:
 
     def instrument_package(self, package_name: str = "sklearn"):
         estimators = get_estimators_in_package(package_name=package_name)
-        for estimator_qualname, estimator in estimators.items():
+        for estimator in estimators:
             self.instrument_class(estimator=estimator)
 
     def instrument_class(self, estimator: Type[BaseEstimator]):
@@ -321,10 +320,9 @@ class SklearnInstrumentor:
             return
 
         instr = getattr(estimator, f"_skli_{method_name}", None)
-        if not instr:
+        if instr is None:
             instr = SklearnMethodInstrumentation(class_method)
             setattr(estimator, f"_skli_{method_name}", instr)
-
         instr.add(decorator=self.decorator, decorator_kwargs=self.decorator_kwargs)
         setattr(
             estimator,
@@ -354,7 +352,7 @@ class SklearnInstrumentor:
 
     def uninstrument_package(self, package_name: str = "sklearn", full: bool = False):
         estimators = get_estimators_in_package(package_name=package_name)
-        for estimator_qualname, estimator in estimators.items():
+        for estimator in estimators:
             self.uninstrument_class(estimator=estimator, full=full)
 
     def uninstrument_class(self, estimator: Type[BaseEstimator], full: bool = False):

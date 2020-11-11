@@ -1,14 +1,17 @@
 import inspect
 import logging
 import os
+import warnings
 from collections.abc import Callable
 from functools import wraps
 from importlib import import_module
 from inspect import isclass
 from inspect import ismethod
 from pkgutil import iter_modules
+from pkgutil import walk_packages
 from typing import Dict
 from typing import List
+from typing import Set
 from typing import Type
 from typing import Union
 
@@ -133,32 +136,40 @@ def get_arg_by_key(func: Callable, args: tuple, key: str):
 
 def get_estimators_in_packages(
     package_names: List[str],
-) -> Dict[str, Type[BaseEstimator]]:
+) -> Set[Type[BaseEstimator]]:
     """Get all BaseEstimators from a list of packages.
 
     :param list(str) package_names: a list of package names from which to get BaseEstimators
     :return: A dictionary of fully qualified class names as keys and classes as values
     """
-    base_estimators = dict()
+    base_estimators = set()
     for package_name in package_names:
-        base_estimators.update(get_estimators_in_package(package_name=package_name))
+        base_estimators = base_estimators.union(
+            get_estimators_in_package(package_name=package_name)
+        )
     return base_estimators
 
 
 def get_estimators_in_package(
     package_name: str = "sklearn",
-) -> Dict[str, Type[BaseEstimator]]:
+) -> Set[Type[BaseEstimator]]:
     """Get all BaseEstimators from a package.
 
     :param str package_name: a package name from which to get BaseEstimators
     :return: A dictionary of fully qualified class names as keys and classes as values
     """
-    base_estimators = dict()
+    base_estimators = set()
     package = import_module(package_name)
     package_dir = os.path.dirname(package.__file__)
-    for (_, module_name, _) in iter_modules([package_dir]):
+    for (_, module_name, _) in walk_packages(
+        [package_dir], prefix=package.__name__ + "."
+    ):
+        if "test" in module_name:
+            continue
         try:
-            module = import_module(package_name + "." + module_name)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                module = import_module(module_name)
         except ImportError:
             logging.warning(f"Unable to import {package_name}.{module_name}")
             continue
@@ -167,8 +178,5 @@ def get_estimators_in_package(
             if isclass(module_attribute) and issubclass(
                 module_attribute, BaseEstimator
             ):
-                full_qualname = ".".join(
-                    [package_name, module_name, module_attribute_name]
-                )
-                base_estimators[full_qualname] = module_attribute
+                base_estimators.add(module_attribute)
     return base_estimators

@@ -120,8 +120,10 @@ def test_get_arg_by_key():
 
 
 def test_get_estimators_in_packages():
-    assert get_estimators_in_packages(["numpy"]) == {}
+    assert len(get_estimators_in_packages(["pandas"])) == 0
+    assert len(get_estimators_in_packages(["xgboost"])) > 0
+    assert len(get_estimators_in_packages(["lightgbm"])) > 0
     sklearn_estimators = get_estimators_in_packages(["sklearn"])
-    assert BaseEstimator in sklearn_estimators.values()
-    assert RandomForestClassifier in sklearn_estimators.values()
-    assert Pipeline in sklearn_estimators.values()
+    assert BaseEstimator in sklearn_estimators
+    assert RandomForestClassifier in sklearn_estimators
+    assert Pipeline in sklearn_estimators
