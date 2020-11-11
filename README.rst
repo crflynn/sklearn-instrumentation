@@ -1,9 +1,9 @@
 sklearn-instrumentation
 =======================
 
-Generalized instrumentation tooling for scikit-learn models. ``sklearn_instrumentation`` allows instrumenting the ``sklearn`` library and any scikit-learn compatible libraries with estimators and transformers inheriting from ``sklearn.base.BaseEstimator.
+Generalized instrumentation tooling for scikit-learn models. ``sklearn_instrumentation`` allows instrumenting the ``sklearn`` package and any scikit-learn compatible packages with estimators and transformers inheriting from ``sklearn.base.BaseEstimator``.
 
-Instrumentation applies decorators to methods ``BaseEstimator``-derived classes or instances. By default the instrumentor applies instrumentation to the following methods (if they exist):
+Instrumentation applies decorators to methods of ``BaseEstimator``-derived classes or instances. By default the, instrumentor applies instrumentation to the following methods (except when they are properties):
 
 * fit
 * predict
@@ -14,8 +14,22 @@ Instrumentation applies decorators to methods ``BaseEstimator``-derived classes 
 * _predict_proba
 * _transform
 
+**sklearn-instrumentation** supports instrumentation of full sklearn-compatible packages, as well as recursive instrumentation of models (metaestimators like ``Pipeline``, or even single estimators like ``RandomForestClassifier``)
+
 Package instrumentation
----------------------------------------
+-----------------------
+
+Instrument any sklearn compatible package that has ``BaseEstimator``-derived classes.
+
+.. code-block:: python
+
+    from sklearn_instrumentation import SklearnInstrumentor
+
+    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor.instrument_packages(["sklearn", "xgboost", "lightgbm"])
+
+
+Full example:
 
 .. code-block:: python
 
@@ -33,6 +47,11 @@ Package instrumentation
 
     logging.basicConfig(level=logging.INFO)
 
+    # Create an instrumentor and instrument sklearn
+    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+    instrumentor.instrument_packages(["sklearn"])
+
+    # Create a toy model for classification
     ss = StandardScaler()
     pca = PCA(n_components=3)
     rf = RandomForestClassifier()
@@ -51,10 +70,21 @@ Package instrumentation
         ]
     )
     X, y = load_iris(return_X_y=True)
-    classification_model.fit(X, y)
 
-    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
-    instrumentor.instrument_packages(["sklearn"])
+    # Observe logging
+    classification_model.fit(X, y)
+    # INFO:rooot:Pipeline.fit starting.
+    # INFO:rooot:Pipeline._fit starting.
+    # INFO:rooot:StandardScaler.fit starting.
+    # INFO:rooot:StandardScaler.fit elapsed time: 0.0006406307220458984 seconds
+    # INFO:rooot:StandardScaler.transform starting.
+    # INFO:rooot:StandardScaler.transform elapsed time: 0.0001430511474609375 seconds
+    # INFO:rooot:PCA._fit starting.
+    # INFO:rooot:PCA._fit elapsed time: 0.0006711483001708984 seconds
+    # INFO:rooot:Pipeline._fit elapsed time: 0.0026731491088867188 seconds
+    # INFO:rooot:BaseForest.fit starting.
+    # INFO:rooot:BaseForest.fit elapsed time: 0.1768970489501953 seconds
+    # INFO:rooot:Pipeline.fit elapsed time: 0.17983102798461914 seconds
 
     # Observe logging
     classification_model.predict(X)
@@ -80,6 +110,15 @@ Package instrumentation
 
 Machine learning model instrumentation
 --------------------------------------
+
+Instrument any sklearn compatible trained estimator or metaestimator.
+
+.. code-block:: python
+
+    from sklearn_instrumentation import SklearnInstrumentor
+
+    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor.instrument_estimator(estimator=my_ml_pipeline)
 
 
 .. code-block:: python
@@ -119,3 +158,49 @@ Machine learning model instrumentation
 
     # No more logging
     rf.predict(X)
+
+
+Instrumentation
+---------------
+
+The package comes with a handful of decorators which log information about ``X`` or timing of execution. You can create your own instrumentation just by creating a decorator, following this pattern
+
+.. code-block:: python
+
+    from functools import wraps
+
+
+    def my_instrumentation(func, **dkwargs):
+        """Wrap an estimator method with instrumentation.
+
+        :param func: The method to be instrumented.
+        :param dkwargs: Decorator kwargs, which can be passed to the
+            decorator at decoration time. For estimator instrumentation
+            this allows different parametrizations for each ml model.
+        """
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            """Wrapping function.
+
+            :param args: The args passed to methods, typically
+                just ``X`` and/or ``y``
+            :param kwargs: The kwargs passed to methods, usually
+                weights or other params
+            """
+            # Code goes here before execution of the estimator method
+            retval = func(*args, **kwargs)
+            # Code goes here after execution of the estimator method
+            return retval
+
+        return wrapper
+
+
+To pass kwargs for different ml models:
+
+.. code-block:: python
+
+    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+
+    instrumentor.instrument_estimator(estimator=ml_model_1, decorator_kwargs={"name": "awesome_model"})
+    instrumentor.instrument_estimator(estimator=ml_model_2, decorator_kwargs={"name": "better_model"})
+

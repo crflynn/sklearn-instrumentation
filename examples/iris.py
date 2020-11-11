@@ -12,6 +12,10 @@ from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
 
 logging.basicConfig(level=logging.INFO)
 
+instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+instrumentor.instrument_packages(["sklearn"])
+
+
 ss = StandardScaler()
 pca = PCA(n_components=3)
 rf = RandomForestClassifier()
@@ -30,11 +34,8 @@ classification_model = Pipeline(
     ]
 )
 X, y = load_iris(return_X_y=True)
-instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
 classification_model.fit(X, y)
 
-instrumentor.instrument_packages(["sklearn"])
 classification_model.predict(X)
 
-# instrumentor.uninstrument_estimator(classification_model)
-# classification_model.predict(pd.DataFrame(X))
+instrumentor.uninstrument_packages(["sklearn"])

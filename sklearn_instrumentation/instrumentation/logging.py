@@ -8,6 +8,10 @@ from sklearn_instrumentation.utils import get_arg_by_key
 
 
 def column_logger(func: Callable, **dkwargs):
+    """Instrumentation which logs the columns of X on input and output.
+
+    Only works if X is a pandas DataFrame.
+    """
     @wraps(func)
     def wrapper(*args, **kwargs):
         X = get_arg_by_key(func, args, "X")
@@ -22,6 +26,7 @@ def column_logger(func: Callable, **dkwargs):
 
 
 def shape_logger(func: Callable, **dkwargs):
+    """Instrumentation which logs the shape of X on input and output."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         X = get_arg_by_key(func, args, "X")
@@ -35,6 +40,7 @@ def shape_logger(func: Callable, **dkwargs):
 
 
 def getsizeof_logger(func: Callable, **dkwargs):
+    """Instrumentation which logs ``sys.getsizeof(X)`` on input and output."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         X = get_arg_by_key(func, args, "X")
@@ -48,6 +54,7 @@ def getsizeof_logger(func: Callable, **dkwargs):
 
 
 def time_elapsed_logger(func: Callable, **dkwargs):
+    """Instrumentation which logs execution time elapsed."""
     @wraps(func)
     def wrapper(*args, **kwargs):
         logging.info(f"{func.__qualname__} starting.")

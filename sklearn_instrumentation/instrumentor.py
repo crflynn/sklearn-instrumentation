@@ -94,9 +94,11 @@ class SklearnInstrumentor:
 
             return wrapper
 
+
     :param Callable decorator: A decorator to apply to sklearn estimator methods. The
-        wrapping function signature should be (func, **dkwargs), where func is the
-        target method and dkwargs is the decorator_kwargs argument of the instrumentor.
+        wrapping function signature should be ``(func, **dkwargs)``, where ``func`` is
+        the target method and ``dkwargs`` is the decorator_kwargs argument of the
+        instrumentor.
     :param dict decorator_kwargs: Keyword args to be passed to the decorator.
     :param list(str) methods: A list of method names on which to apply decorators.
     :param list(BaseEstimator) exclude: A list of classes for which instrumentation
@@ -281,10 +283,22 @@ class SklearnInstrumentor:
 
     # region package
     def instrument_packages(self, package_names: List[str]):
+        """Instrument multiple packages.
+
+        Apply this instrumentor's decorator to the components of the packages.
+
+        :param list(str) package_names: A list of package names.
+        """
         for package_name in package_names:
             self.instrument_package(package_name=package_name)
 
     def instrument_package(self, package_name: str = "sklearn"):
+        """Instrument a package.
+
+        Apply this instrumentor's decorator to the components of the package.
+
+        :param str package_name: A list of package names.
+        """
         estimators = get_estimators_in_package(package_name=package_name)
         for estimator in estimators:
             self.instrument_class(estimator=estimator)
@@ -347,15 +361,29 @@ class SklearnInstrumentor:
         )
 
     def uninstrument_packages(self, package_names: List[str], full: bool = False):
+        """Uninstrument multiple packages.
+
+        Remove this instrumentor's decorators from the components of the packages.
+
+        :param list(str) package_names: A list of package names.
+        :param bool full: Whether to fully uninstrument the packages.
+        """
         for package_name in package_names:
             self.uninstrument_package(package_name=package_name, full=full)
 
     def uninstrument_package(self, package_name: str = "sklearn", full: bool = False):
+        """Uninstrument a package.
+
+        Remove this instrumentor's decorators from the components of the package.
+
+        :param str package_name: A package name.
+        :param bool full: Whether to fully uninstrument the packages.
+        """
         estimators = get_estimators_in_package(package_name=package_name)
         for estimator in estimators:
-            self.uninstrument_class(estimator=estimator, full=full)
+            self._uninstrument_class(estimator=estimator, full=full)
 
-    def uninstrument_class(self, estimator: Type[BaseEstimator], full: bool = False):
+    def _uninstrument_class(self, estimator: Type[BaseEstimator], full: bool = False):
         for method_name in self.methods:
             self._uninstrument_class_method(
                 estimator=estimator, method_name=method_name, full=full

@@ -1,7 +1,7 @@
-from sklearn_instrumentation.utils import wraps
+from functools import wraps
 
 
-def identity(func):
+def identity(func, **dkwargs):
     @wraps(func)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)

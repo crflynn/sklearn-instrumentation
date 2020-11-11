@@ -67,15 +67,18 @@ def get_sklearn_estimator_from_method(func: Callable) -> BaseEstimator:
 
 
 def is_class_method(func: Callable) -> bool:
+    """Indicate if the method belongs to a class (opposed to an instance)."""
     if list(inspect.signature(func).parameters.keys())[0] == "self":
         return True
 
 
 def is_instance_method(func: Callable) -> bool:
+    """Indicate if the method belongs to an instance of a class (opposed to the class)."""
     return not is_class_method(func)
 
 
 def get_delegator(func: Callable) -> _IffHasAttrDescriptor:
+    """Get the corresponding ``_IffHasAttrDescriptor``."""
     for cell in func.__closure__:
         obj = cell.cell_contents
         if isinstance(obj, _IffHasAttrDescriptor):
@@ -83,6 +86,7 @@ def get_delegator(func: Callable) -> _IffHasAttrDescriptor:
 
 
 def is_delegator(func: Callable) -> bool:
+    """Indicate if the method is delegated using ``_IffHasAttrDescriptor``."""
     try:
         for cell in func.__closure__:
             obj = cell.cell_contents
@@ -96,6 +100,7 @@ def is_delegator(func: Callable) -> bool:
 def method_is_inherited(
     estimator: Union[BaseEstimator, Type[BaseEstimator]], method_name: str
 ) -> bool:
+    """Indicate if the estimator's method is inherited from a parent class."""
     method = getattr(estimator, method_name)
     method_class = method.__qualname__.split(".")[0]
     try:
@@ -108,6 +113,7 @@ def method_is_inherited(
 def has_instrumentation(
     estimator: Union[BaseEstimator, Type[BaseEstimator]], method_name: str
 ) -> bool:
+    """Indicate if the estimator's method is instrumented."""
     method = getattr(estimator, method_name)
     instr_attrib_name = f"_skli_{method_name}"
     if hasattr(estimator, instr_attrib_name):
@@ -120,6 +126,7 @@ def has_instrumentation(
 
 
 def non_self_arg(func: Callable, args: tuple, idx: int):
+    """Get the value of a corresponding arg index ignoring self for class methods."""
     if is_class_method(func):
         return args[idx + 1]
     else:
@@ -127,6 +134,7 @@ def non_self_arg(func: Callable, args: tuple, idx: int):
 
 
 def get_arg_by_key(func: Callable, args: tuple, key: str):
+    """Get the value of a corresponding arg name as found in a function's signature."""
     keys = list(inspect.signature(func).parameters.keys())
     idx = keys.index(key)
     if is_delegator(func):
