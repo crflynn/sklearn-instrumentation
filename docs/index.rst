@@ -24,6 +24,7 @@ Instrumentation works by applying decorators to methods of ``BaseEstimator``-der
    package_instrumentation
    estimator_instrumentation
    instrumentor
+   configuration
    instrumentation/logging
    instrumentation/custom
    utils

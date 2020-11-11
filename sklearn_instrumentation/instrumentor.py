@@ -450,3 +450,5 @@ class SklearnInstrumentor:
 
     def _get_instrumentation_attribute_name(self, method_name: str):
         return f"_skli_{method_name}"
+
+    # endregion
