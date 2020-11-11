@@ -1,0 +1,2 @@
+from sklearn_instrumentation._version import __version__
+from sklearn_instrumentation.instrumentor import SklearnInstrumentor
