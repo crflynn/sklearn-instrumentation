@@ -3,7 +3,7 @@ sklearn-instrumentation Documentation
 
 Generalized instrumentation tooling for scikit-learn models. ``sklearn_instrumentation`` allows instrumenting the ``sklearn`` package and any scikit-learn compatible packages with estimators and transformers inheriting from ``sklearn.base.BaseEstimator``.
 
-Instrumentation works by applying decorators to methods of ``BaseEstimator``-derived classes or instances. By default the, instrumentor applies instrumentation to the following methods (except when they are properties):
+Instrumentation works by applying decorators to methods of ``BaseEstimator``-derived classes or instances. By default the instrumentor applies instrumentation to the following methods (except when they are properties):
 
 * fit
 * predict

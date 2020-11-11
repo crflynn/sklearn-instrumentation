@@ -1,7 +1,7 @@
 Custom Instrumentation
 ======================
 
-The package comes with a handful of decorators which log information about ``X`` or timing of execution. You can create your own instrumentation just by creating a decorator, following this pattern
+The package comes with a handful of decorators which log information about ``X`` or timing of execution. You can create your own instrumentation just by creating a decorator, following this pattern:
 
 .. code-block:: python
 
@@ -33,7 +33,7 @@ The package comes with a handful of decorators which log information about ``X``
         return wrapper
 
 
-To pass kwargs for different ml models using ``dkwargs``:
+To pass decorator kwargs for different ml models using ``dkwargs``:
 
 .. code-block:: python
 

@@ -117,14 +117,14 @@ class SklearnInstrumentor:
         self.methods = methods or DEFAULT_METHODS
         self.exclude = tuple(exclude or DEFAULT_EXCLUDE)
 
-    # region instrumentation
+    # region instrumentation estimator
     def instrument_estimator(
         self,
         estimator: BaseEstimator,
         recursive: bool = True,
         decorator_kwargs: dict = None,
     ):
-        """Instrument an estimator instance.
+        """Instrument a BaseEstimator instance.
 
         Decorate the methods of the estimator instance.
 
@@ -203,11 +203,11 @@ class SklearnInstrumentor:
 
     # endregion
 
-    # region uninstrumentation
+    # region uninstrumentation estimator
     def uninstrument_estimator(
         self, estimator: BaseEstimator, recursive: bool = True, full: bool = False
     ):
-        """Uninstrument an estimator instance.
+        """Uninstrument a BaseEstimator instance.
 
         Remove this instrumentor's decorators on the methods of the estimator instance.
 
@@ -281,7 +281,7 @@ class SklearnInstrumentor:
 
     # endregion
 
-    # region package
+    # region instrumentation package
     def instrument_packages(self, package_names: List[str]):
         """Instrument multiple packages.
 
@@ -304,6 +304,12 @@ class SklearnInstrumentor:
             self.instrument_class(estimator=estimator)
 
     def instrument_class(self, estimator: Type[BaseEstimator]):
+        """Instrument a BaseEstimator class.
+
+        Apply this instrumentor's decorator to the methods of a BaseEstimator class.
+
+        :param Type[BaseEstimator] estimator: A class on which to apply instrumentation.
+        """
         if issubclass(estimator, self.exclude):
             logging.debug(f"Not instrumenting (excluded): {str(estimator)}")
             return
@@ -360,6 +366,9 @@ class SklearnInstrumentor:
             instr.wrapper,
         )
 
+    # endregion
+
+    # region uninstrumentation package
     def uninstrument_packages(self, package_names: List[str], full: bool = False):
         """Uninstrument multiple packages.
 
@@ -381,9 +390,15 @@ class SklearnInstrumentor:
         """
         estimators = get_estimators_in_package(package_name=package_name)
         for estimator in estimators:
-            self._uninstrument_class(estimator=estimator, full=full)
+            self.uninstrument_class(estimator=estimator, full=full)
 
-    def _uninstrument_class(self, estimator: Type[BaseEstimator], full: bool = False):
+    def uninstrument_class(self, estimator: Type[BaseEstimator], full: bool = False):
+        """Instrument a BaseEstimator class.
+
+        Apply this instrumentor's decorator to the methods of a BaseEstimator class.
+
+        :param Type[BaseEstimator] estimator: A class on which to apply instrumentation.
+        """
         for method_name in self.methods:
             self._uninstrument_class_method(
                 estimator=estimator, method_name=method_name, full=full

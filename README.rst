@@ -3,7 +3,7 @@ sklearn-instrumentation
 
 Generalized instrumentation tooling for scikit-learn models. ``sklearn_instrumentation`` allows instrumenting the ``sklearn`` package and any scikit-learn compatible packages with estimators and transformers inheriting from ``sklearn.base.BaseEstimator``.
 
-Instrumentation applies decorators to methods of ``BaseEstimator``-derived classes or instances. By default the, instrumentor applies instrumentation to the following methods (except when they are properties):
+Instrumentation applies decorators to methods of ``BaseEstimator``-derived classes or instances. By default the instrumentor applies instrumentation to the following methods (except when they are properties):
 
 * fit
 * predict
@@ -73,18 +73,18 @@ Full example:
 
     # Observe logging
     classification_model.fit(X, y)
-    # INFO:rooot:Pipeline.fit starting.
-    # INFO:rooot:Pipeline._fit starting.
-    # INFO:rooot:StandardScaler.fit starting.
-    # INFO:rooot:StandardScaler.fit elapsed time: 0.0006406307220458984 seconds
-    # INFO:rooot:StandardScaler.transform starting.
-    # INFO:rooot:StandardScaler.transform elapsed time: 0.0001430511474609375 seconds
-    # INFO:rooot:PCA._fit starting.
-    # INFO:rooot:PCA._fit elapsed time: 0.0006711483001708984 seconds
-    # INFO:rooot:Pipeline._fit elapsed time: 0.0026731491088867188 seconds
-    # INFO:rooot:BaseForest.fit starting.
-    # INFO:rooot:BaseForest.fit elapsed time: 0.1768970489501953 seconds
-    # INFO:rooot:Pipeline.fit elapsed time: 0.17983102798461914 seconds
+    # INFO:root:Pipeline.fit starting.
+    # INFO:root:Pipeline._fit starting.
+    # INFO:root:StandardScaler.fit starting.
+    # INFO:root:StandardScaler.fit elapsed time: 0.0006406307220458984 seconds
+    # INFO:root:StandardScaler.transform starting.
+    # INFO:root:StandardScaler.transform elapsed time: 0.0001430511474609375 seconds
+    # INFO:root:PCA._fit starting.
+    # INFO:root:PCA._fit elapsed time: 0.0006711483001708984 seconds
+    # INFO:root:Pipeline._fit elapsed time: 0.0026731491088867188 seconds
+    # INFO:root:BaseForest.fit starting.
+    # INFO:root:BaseForest.fit elapsed time: 0.1768970489501953 seconds
+    # INFO:root:Pipeline.fit elapsed time: 0.17983102798461914 seconds
 
     # Observe logging
     classification_model.predict(X)
