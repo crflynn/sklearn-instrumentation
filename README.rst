@@ -31,6 +31,16 @@ Instrumentation applies decorators to methods of ``BaseEstimator``-derived class
 
 **sklearn-instrumentation** supports instrumentation of full sklearn-compatible packages, as well as recursive instrumentation of models (metaestimators like ``Pipeline``, or even single estimators like ``RandomForestClassifier``)
 
+Installation
+------------
+
+The sklearn-instrumentation package is available on pypi and can be installed using pip
+
+.. code-block:: bash
+
+    pip install sklearn-instrumentation
+
+
 Package instrumentation
 -----------------------
 
