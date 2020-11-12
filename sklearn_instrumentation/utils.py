@@ -16,6 +16,8 @@ from typing import Union
 from sklearn.base import BaseEstimator
 from sklearn.utils.metaestimators import _IffHasAttrDescriptor
 
+logger = logging.getLogger(__name__)
+
 
 def compose_decorators(decorators: List[Callable]) -> Callable:
     """Compose multiple decorators into one.
@@ -177,7 +179,7 @@ def get_estimators_in_package(
                 warnings.simplefilter("ignore")
                 module = import_module(module_name)
         except ImportError:
-            logging.warning(f"Unable to import {package_name}.{module_name}")
+            logger.warning(f"Unable to import {package_name}.{module_name}")
             continue
         for module_attribute_name in dir(module):
             module_attribute = getattr(module, module_attribute_name)
