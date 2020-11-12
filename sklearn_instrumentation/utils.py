@@ -7,9 +7,7 @@ from functools import wraps
 from importlib import import_module
 from inspect import isclass
 from inspect import ismethod
-from pkgutil import iter_modules
 from pkgutil import walk_packages
-from typing import Dict
 from typing import List
 from typing import Set
 from typing import Type
