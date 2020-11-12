@@ -17,6 +17,8 @@ from sklearn_instrumentation.utils import get_estimators_in_package
 from sklearn_instrumentation.utils import is_delegator
 from sklearn_instrumentation.utils import method_is_inherited
 
+logger = logging.getLogger(__name__)
+
 
 class SklearnMethodInstrumentation:
     """Container for multiple decorators of the same function.
@@ -178,7 +180,7 @@ class SklearnInstrumentor:
     ):
         class_attribute = getattr(type(estimator), method_name, None)
         if isinstance(class_attribute, property):
-            logging.debug(
+            logger.debug(
                 f"Not instrumenting property: {estimator.__class__.__qualname__}.{method_name}",
             )
             return
@@ -311,9 +313,9 @@ class SklearnInstrumentor:
         :param Type[BaseEstimator] estimator: A class on which to apply instrumentation.
         """
         if issubclass(estimator, self.exclude):
-            logging.debug(f"Not instrumenting (excluded): {str(estimator)}")
+            logger.debug(f"Not instrumenting (excluded): {str(estimator)}")
             return
-        logging.debug(f"Instrumenting: {str(estimator)}")
+        logger.debug(f"Instrumenting: {str(estimator)}")
         for method_name in self.methods:
             self._instrument_class_method(estimator=estimator, method_name=method_name)
 
@@ -327,7 +329,7 @@ class SklearnInstrumentor:
             return
 
         if isinstance(class_method, property):
-            logging.debug(
+            logger.debug(
                 f"Not instrumenting property: {estimator.__qualname__}.{method_name}",
             )
             return
