@@ -1,13 +1,36 @@
 [tool.poetry]
 name = "sklearn-instrumentation"
 version = "0.1.0"
-description = ""
+description = "scikit-learn instrumentation tooling"
 authors = ["flynn <crf204@gmail.com>"]
+license = "MIT"
+readme = "README.rst"
+homepage = "https://github.com/crflynn/sklearn-instrumentation"
+repository = "https://github.com/crflynn/sklearn-instrumentation"
+documentation = "https://sklearn-instrumentation.readthedocs.io/en/latest/"
+keywords = ["scikit-learn", "instrumentation", "machine", "learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+]
+include = [
+    "CHANGELOG.rst",
+    "LICENSE.txt"
+]
 
 [tool.poetry.extras]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
+numpy = "*"
 scikit-learn = "*"
 
 [tool.poetry.dev-dependencies]
