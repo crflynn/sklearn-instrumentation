@@ -61,6 +61,27 @@ def classification_model(request):
     return pipeline
 
 
+@pytest.fixture(scope="function")
+def classification_model_multi(request):
+    pipeline = Pipeline(
+        steps=[
+            (
+                "fu",
+                FeatureUnion(
+                    transformer_list=[
+                        ("ss", StandardScaler()),
+                        ("ss2", StandardScaler()),
+                        ("pca", PCA()),
+                        ("pca2", PCA()),
+                    ]
+                ),
+            ),
+            ("rf", RandomForestClassifier()),
+        ]
+    )
+    return pipeline
+
+
 @pytest.fixture
 def boston(request):
     X, y = load_boston(return_X_y=True)

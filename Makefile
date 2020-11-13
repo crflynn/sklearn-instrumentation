@@ -10,7 +10,7 @@ cov:
 
 .PHONY: docs
 docs:
-	poetry export --dev -f requirements.txt > docs/requirements.txt
+	poetry export --dev --extras all --without-hashes -f requirements.txt > docs/requirements.txt
 	cd docs && poetry run sphinx-build -M html . build -a
 	open docs/build/html/index.html
 

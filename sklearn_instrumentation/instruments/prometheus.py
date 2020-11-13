@@ -1,5 +1,5 @@
-from collections import Callable
 from collections import defaultdict
+from collections.abc import Callable
 from threading import Lock
 
 from prometheus_client import Histogram
@@ -30,7 +30,7 @@ class BasePrometheus(BaseInstrument):
             try:
                 idx = self.enumerations[key].index(func)
             except ValueError:
-                idx = 0
+                idx = len(self.enumerations[key])
                 self.enumerations[key].append(func)
             labels["qualname"] = f"{func.__qualname__}-{idx}"
 
@@ -45,6 +45,14 @@ class BasePrometheus(BaseInstrument):
 
 
 class PrometheusSummary(BasePrometheus):
+    r"""Instrument with prometheus summary metrics.
+
+    :param Summary summary: A prometheus Summary object
+    :param bool enumerate\_: Whether to enumerate multiple instances of the
+        same estimator type by appending the qualname with "-N" where N is
+        the count of estimator types found in the estimator hierarchy
+    """
+
     def __init__(self, summary: Summary = None, enumerate_: bool = False):
         if summary is None:
             summary = Summary(
@@ -61,6 +69,14 @@ class PrometheusSummary(BasePrometheus):
 
 
 class PrometheusHistogram(BasePrometheus):
+    r"""Instrument with prometheus histogram metrics.
+
+    :param Histogram histogram: A prometheus Histogram object
+    :param bool enumerate\_: Whether to enumerate multiple instances of the
+        same estimator type by appending the qualname with "-N" where N is
+        the count of estimator types found in the estimator hierarchy
+    """
+
     def __init__(self, histogram: Histogram = None, enumerate_: bool = False):
         if histogram is None:
             histogram = Histogram(

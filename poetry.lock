@@ -702,7 +702,7 @@ prometheus = ["prometheus-client"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "2df4974253a102901ee66b36506a43b9e500695b3f7d12bf0cfdc77c0e368490"
+content-hash = "3a7339700b5246cc3ed397aadbcb4fbd7e20ea077ac8c6d10197374e3503dbc2"
 
 [metadata.files]
 aiocontextvars = [
