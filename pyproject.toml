@@ -23,15 +23,18 @@ classifiers = [
 ]
 include = [
     "CHANGELOG.rst",
-    "LICENSE.txt"
+    "LICENSE.txt",
+    "README.rst",
 ]
 
 [tool.poetry.extras]
+prometheus = ["prometheus-client"]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
 numpy = "*"
 scikit-learn = "*"
+prometheus-client = {version = "^0.8.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
