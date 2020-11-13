@@ -1,4 +1,5 @@
 import threading
+import time
 
 import requests
 from prometheus_client import Histogram
@@ -27,6 +28,7 @@ def test_prometheus_histogram(classification_model, iris):
 
     thread = threading.Thread(target=start_server)
     thread.start()
+    time.sleep(2)
 
     classification_model.predict(iris.X_test)
 
@@ -57,6 +59,7 @@ def test_prometheus_histogram_multi(classification_model_multi, iris):
 
     thread = threading.Thread(target=start_server)
     thread.start()
+    time.sleep(2)
 
     classification_model_multi.predict(iris.X_test)
 
@@ -83,6 +86,7 @@ def test_prometheus_summary(classification_model, iris):
 
     thread = threading.Thread(target=start_server)
     thread.start()
+    time.sleep(2)
 
     classification_model.predict(iris.X_test)
 
@@ -114,6 +118,7 @@ def test_prometheus_summary_multi(classification_model_multi, iris):
 
     thread = threading.Thread(target=start_server)
     thread.start()
+    time.sleep(2)
 
     classification_model_multi.predict(iris.X_test)
 
