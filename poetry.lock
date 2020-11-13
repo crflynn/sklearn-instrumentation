@@ -697,12 +697,13 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "jaraco.test (>=3.2.0)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
+all = ["prometheus-client"]
 prometheus = ["prometheus-client"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "3a7339700b5246cc3ed397aadbcb4fbd7e20ea077ac8c6d10197374e3503dbc2"
+content-hash = "2d263c02cb8e52468578dfe522e1121ee55e81d16a28ae5b38f5b83030dc3439"
 
 [metadata.files]
 aiocontextvars = [
