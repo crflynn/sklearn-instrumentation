@@ -50,7 +50,7 @@ Instrument any sklearn compatible package that has ``BaseEstimator``-derived cla
 
     from sklearn_instrumentation import SklearnInstrumentor
 
-    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor = SklearnInstrumentor(instrument=my_instrument)
     instrumentor.instrument_packages(["sklearn", "xgboost", "lightgbm"])
 
 
@@ -68,12 +68,12 @@ Full example:
     from sklearn.preprocessing import StandardScaler
 
     from sklearn_instrumentation import SklearnInstrumentor
-    from sklearn_instrumentation.instruments.logging import time_elapsed_logger
+    from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
 
     logging.basicConfig(level=logging.INFO)
 
     # Create an instrumentor and instrument sklearn
-    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+    instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
     instrumentor.instrument_packages(["sklearn"])
 
     # Create a toy model for classification
@@ -142,9 +142,11 @@ Instrument any sklearn compatible trained estimator or metaestimator.
 
     from sklearn_instrumentation import SklearnInstrumentor
 
-    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor = SklearnInstrumentor(instrument=my_instrument)
     instrumentor.instrument_estimator(estimator=my_ml_pipeline)
 
+
+Example:
 
 .. code-block:: python
 
@@ -152,7 +154,7 @@ Instrument any sklearn compatible trained estimator or metaestimator.
 
     from sklearn.datasets import load_iris
     from sklearn_instrumentation import SklearnInstrumentor
-    from sklearn_instrumentation.instruments.logging import time_elapsed_logger
+    from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
     from sklearn.ensemble import RandomForestClassifier
 
     logging.basicConfig(level=logging.INFO)
@@ -166,7 +168,7 @@ Instrument any sklearn compatible trained estimator or metaestimator.
     # Create an instrumentor which decorates BaseEstimator methods with
     # logging output when entering and exiting methods, with time elapsed logged
     # on exit.
-    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+    instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
 
     # Apply the decorator to all BaseEstimators in each of these libraries
     instrumentor.instrument_estimator(rf)
@@ -188,7 +190,7 @@ Instrument any sklearn compatible trained estimator or metaestimator.
 Instrumentation
 ---------------
 
-The package comes with a handful of decorators which log information about ``X`` or timing of execution. You can create your own instrumentation just by creating a decorator, following this pattern
+The package comes with a handful of instruments which log information about ``X`` or timing of execution. You can create your own instrumentation just by creating a decorator, following this pattern
 
 .. code-block:: python
 
@@ -220,12 +222,52 @@ The package comes with a handful of decorators which log information about ``X``
         return wrapper
 
 
+To create a stateful instrument, use a class with the ``__call__`` method for implementing the decorator:
+
+.. code-block:: python
+
+    from functools import wraps
+
+    from sklearn_instrumentation.instruments.base import BaseInstrument
+
+
+    class MyInstrument(BaseInstrument)
+
+        def __init__(self, *args, **kwargs):
+            # handle any statefulness here
+            pass
+
+        def __call__(self, func, **dkwargs):
+            """Wrap an estimator method with instrumentation.
+
+            :param func: The method to be instrumented.
+            :param dkwargs: Decorator kwargs, which can be passed to the
+                decorator at decoration time. For estimator instrumentation
+                this allows different parametrizations for each ml model.
+            """
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                """Wrapping function.
+
+                :param args: The args passed to methods, typically
+                    just ``X`` and/or ``y``
+                :param kwargs: The kwargs passed to methods, usually
+                    weights or other params
+                """
+                # Code goes here before execution of the estimator method
+                retval = func(*args, **kwargs)
+                # Code goes here after execution of the estimator method
+                return retval
+
+            return wrapper
+
+
 To pass kwargs for different ml models:
 
 .. code-block:: python
 
-    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor = SklearnInstrumentor(instrument=my_instrument)
 
-    instrumentor.instrument_estimator(estimator=ml_model_1, decorator_kwargs={"name": "awesome_model"})
-    instrumentor.instrument_estimator(estimator=ml_model_2, decorator_kwargs={"name": "better_model"})
+    instrumentor.instrument_estimator(estimator=ml_model_1, instrument_kwargs={"name": "awesome_model"})
+    instrumentor.instrument_estimator(estimator=ml_model_2, instrument_kwargs={"name": "better_model"})
 
