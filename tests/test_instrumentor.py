@@ -3,7 +3,7 @@ from sklearn_instrumentation.testing import SklearnInstrumentionAsserter
 
 
 def test_instrumentation(classification_model, simple_decorator, full):
-    instrumentor = SklearnInstrumentor(decorator=simple_decorator)
+    instrumentor = SklearnInstrumentor(instrument=simple_decorator)
     instrumentor.instrument_estimator(classification_model)
     asserter = SklearnInstrumentionAsserter(instrumentor=instrumentor)
     asserter.assert_instrumented_estimator(classification_model)
@@ -12,7 +12,7 @@ def test_instrumentation(classification_model, simple_decorator, full):
 
 
 def test_package_instrumentation(simple_decorator, full):
-    instrumentor = SklearnInstrumentor(decorator=simple_decorator)
+    instrumentor = SklearnInstrumentor(instrument=simple_decorator)
     instrumentor.instrument_packages(["sklearn"])
     asserter = SklearnInstrumentionAsserter(instrumentor=instrumentor)
     asserter.assert_instrumented_packages(["sklearn"])

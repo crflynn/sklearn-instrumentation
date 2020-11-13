@@ -68,7 +68,7 @@ Full example:
     from sklearn.preprocessing import StandardScaler
 
     from sklearn_instrumentation import SklearnInstrumentor
-    from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
+    from sklearn_instrumentation.instruments.logging import time_elapsed_logger
 
     logging.basicConfig(level=logging.INFO)
 
@@ -152,7 +152,7 @@ Instrument any sklearn compatible trained estimator or metaestimator.
 
     from sklearn.datasets import load_iris
     from sklearn_instrumentation import SklearnInstrumentor
-    from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
+    from sklearn_instrumentation.instruments.logging import time_elapsed_logger
     from sklearn.ensemble import RandomForestClassifier
 
     logging.basicConfig(level=logging.INFO)

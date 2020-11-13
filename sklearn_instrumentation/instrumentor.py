@@ -29,51 +29,51 @@ class SklearnMethodInstrumentation:
     def __init__(self, func: Callable):
         self.wrapped = func
         self.wrapper = func
-        self.decorators = []
-        self.decorator_kwargs = []
+        self.instruments = []
+        self.instrument_kwargs = []
 
-    def add(self, decorator: Callable, decorator_kwargs: dict):
+    def add(self, instrument: Callable, instrument_kwargs: dict):
         """Add a decorator and its kwargs.
 
         Adds decorator and its kwargs and updates the internal ``wrapper`` attribute.
 
-        :param Callable decorator: The decorator to apply
-        :param dict decorator_kwargs: Keyword args for the decorator
+        :param Callable instrument: The decorator to apply
+        :param dict instrument_kwargs: Keyword args for the decorator
         """
-        self.decorators.append(decorator)
-        self.decorator_kwargs.append(copy.deepcopy(decorator_kwargs))
+        self.instruments.append(instrument)
+        self.instrument_kwargs.append(copy.deepcopy(instrument_kwargs))
         self._wrap_function()
 
     def _wrap_function(self):
         self.wrapper = self.wrapped
-        for decorator, kwargs in zip(self.decorators, self.decorator_kwargs):
-            self.wrapper = decorator(self.wrapper, **kwargs)
+        for instrument, kwargs in zip(self.instruments, self.instrument_kwargs):
+            self.wrapper = instrument(self.wrapper, **kwargs)
 
-    def remove(self, decorator: Callable):
+    def remove(self, instrument: Callable):
         """Remove instances of a decorator.
 
         Removes all instances of decorator and updates the internal ``wrapper``
         attribute.
 
-        :param Callable decorator: The decorator to remove
+        :param Callable instrument: The decorator to remove
         """
         idxs = []
-        for idx, dec in enumerate(self.decorators):
-            if dec == decorator:
+        for idx, dec in enumerate(self.instruments):
+            if dec == instrument:
                 idxs.append(idx)
 
         for idx in idxs[::-1]:
-            self.decorators.pop(idx)
-            self.decorator_kwargs.pop(idx)
+            self.instruments.pop(idx)
+            self.instrument_kwargs.pop(idx)
 
         self._wrap_function()
 
     def empty(self) -> bool:
         """Indicate whether there are any decorators.
 
-        :return: True if ``decorators`` attribute is empty.
+        :return: True if ``instruments`` attribute is empty.
         """
-        return len(self.decorators) == 0
+        return len(self.instruments) == 0
 
 
 class SklearnInstrumentor:
@@ -81,11 +81,11 @@ class SklearnInstrumentor:
 
     A container for instrumentation configuration.
 
-    The decorator should be similar to the following:
+    The instrument (a decorator) should be similar to the following:
 
     .. code-block:: python
 
-        def instrumenting_decorator(func: Callable, **dkwargs):
+        def instrument_decorator(func: Callable, **dkwargs):
 
             @wraps(func)
             def wrapper(*args, **kwargs):
@@ -97,11 +97,11 @@ class SklearnInstrumentor:
             return wrapper
 
 
-    :param Callable decorator: A decorator to apply to sklearn estimator methods. The
+    :param Callable instrument: A decorator to apply to sklearn estimator methods. The
         wrapping function signature should be ``(func, **dkwargs)``, where ``func`` is
-        the target method and ``dkwargs`` is the decorator_kwargs argument of the
+        the target method and ``dkwargs`` is the instrument_kwargs argument of the
         instrumentor.
-    :param dict decorator_kwargs: Keyword args to be passed to the decorator.
+    :param dict instrument_kwargs: Keyword args to be passed to the decorator.
     :param list(str) methods: A list of method names on which to apply decorators.
     :param list(BaseEstimator) exclude: A list of classes for which instrumentation
         should be skipped.
@@ -109,13 +109,13 @@ class SklearnInstrumentor:
 
     def __init__(
         self,
-        decorator: Callable,
-        decorator_kwargs: dict = None,
+        instrument: Callable,
+        instrument_kwargs: dict = None,
         methods: List[str] = None,
         exclude: List[BaseEstimator] = None,
     ):
-        self.decorator = decorator
-        self.decorator_kwargs = decorator_kwargs or {}
+        self.instrument = instrument
+        self.instrument_kwargs = instrument_kwargs or {}
         self.methods = methods or DEFAULT_METHODS
         self.exclude = tuple(exclude or DEFAULT_EXCLUDE)
 
@@ -124,7 +124,7 @@ class SklearnInstrumentor:
         self,
         estimator: BaseEstimator,
         recursive: bool = True,
-        decorator_kwargs: dict = None,
+        instrument_kwargs: dict = None,
     ):
         """Instrument a BaseEstimator instance.
 
@@ -133,50 +133,52 @@ class SklearnInstrumentor:
         :param BaseEstimator estimator: An instance of a BaseEstimator-derived class.
         :param bool recursive: Whether to iterate recursively through metaestimators
             to apply the same instrumentation.
-        :param dict decorator_kwargs: Keyword args to be passed to the decorator,
+        :param dict instrument_kwargs: Keyword args to be passed to the decorator,
             overriding the ones initialized by the instrumentor
         """
         if recursive:
             self._instrument_recursively(
-                obj=estimator, decorator_kwargs=decorator_kwargs
+                obj=estimator, instrument_kwargs=instrument_kwargs
             )
         else:
             self._instrument_estimator(
-                estimator=estimator, decorator_kwargs=decorator_kwargs
+                estimator=estimator, instrument_kwargs=instrument_kwargs
             )
 
-    def _instrument_estimator(self, estimator: BaseEstimator, decorator_kwargs=None):
+    def _instrument_estimator(self, estimator: BaseEstimator, instrument_kwargs=None):
         for method_name in self.methods:
             self._instrument_instance_method(
                 estimator=estimator,
                 method_name=method_name,
-                decorator_kwargs=decorator_kwargs,
+                instrument_kwargs=instrument_kwargs,
             )
 
-    def _instrument_recursively(self, obj: object, decorator_kwargs=None):
+    def _instrument_recursively(self, obj: object, instrument_kwargs=None):
         if isinstance(obj, FeatureUnion):
             pass
         if isinstance(obj, (*self.exclude, str, np.ndarray)):
             return
 
         if isinstance(obj, BaseEstimator):
-            self._instrument_estimator(estimator=obj, decorator_kwargs=decorator_kwargs)
+            self._instrument_estimator(
+                estimator=obj, instrument_kwargs=instrument_kwargs
+            )
 
         if hasattr(obj, "__dict__"):
             for v in obj.__dict__.values():
-                self._instrument_recursively(obj=v, decorator_kwargs=decorator_kwargs)
+                self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
-                self._instrument_recursively(obj=v, decorator_kwargs=decorator_kwargs)
+                self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
         elif isinstance(obj, Sequence):
             for o in obj:
-                self._instrument_recursively(obj=o, decorator_kwargs=decorator_kwargs)
+                self._instrument_recursively(obj=o, instrument_kwargs=instrument_kwargs)
 
     def _instrument_instance_method(
         self,
         estimator: BaseEstimator,
         method_name: str,
-        decorator_kwargs: dict = None,
+        instrument_kwargs: dict = None,
     ):
         class_attribute = getattr(type(estimator), method_name, None)
         if isinstance(class_attribute, property):
@@ -189,14 +191,14 @@ class SklearnInstrumentor:
         if method is None:
             return
 
-        dkwargs = decorator_kwargs or self.decorator_kwargs
+        dkwargs = instrument_kwargs or self.instrument_kwargs
 
         instr = getattr(estimator, f"_skli_{method_name}", None)
         if instr is None:
             instr = SklearnMethodInstrumentation(method)
             setattr(estimator, f"_skli_{method_name}", instr)
 
-        instr.add(decorator=self.decorator, decorator_kwargs=dkwargs)
+        instr.add(instrument=self.instrument, instrument_kwargs=dkwargs)
         setattr(
             estimator,
             method_name,
@@ -269,7 +271,7 @@ class SklearnInstrumentor:
         if instr is None:
             return
 
-        instr.remove(decorator=self.decorator)
+        instr.remove(instrument=self.instrument)
 
         if full or instr.empty():
             setattr(
@@ -345,7 +347,7 @@ class SklearnInstrumentor:
         if instr is None:
             instr = SklearnMethodInstrumentation(class_method)
             setattr(estimator, f"_skli_{method_name}", instr)
-        instr.add(decorator=self.decorator, decorator_kwargs=self.decorator_kwargs)
+        instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
         setattr(
             estimator,
             method_name,
@@ -360,7 +362,7 @@ class SklearnInstrumentor:
             instr = SklearnMethodInstrumentation(descriptor.fn)
             setattr(descriptor, instr_attrib_name, instr)
 
-        instr.add(decorator=self.decorator, decorator_kwargs=self.decorator_kwargs)
+        instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
 
         setattr(
             descriptor,
@@ -435,7 +437,7 @@ class SklearnInstrumentor:
         if instr is None:
             return
 
-        instr.remove(decorator=self.decorator)
+        instr.remove(instrument=self.instrument)
 
         if full or instr.empty():
             setattr(estimator, method_name, instr.wrapped)
@@ -453,7 +455,7 @@ class SklearnInstrumentor:
             return
 
         instr: SklearnMethodInstrumentation
-        instr.remove(decorator=self.decorator)
+        instr.remove(instrument=self.instrument)
 
         if full or instr.empty():
             setattr(

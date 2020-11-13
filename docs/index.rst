@@ -39,8 +39,9 @@ Instrumentation works by applying decorators to methods of ``BaseEstimator``-der
    estimator_instrumentation
    instrumentor
    configuration
-   instrumentation/logging
-   instrumentation/custom
+   instruments/base
+   instruments/logging
+   instruments/custom
    utils
 
 
