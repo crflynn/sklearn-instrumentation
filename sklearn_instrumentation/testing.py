@@ -68,7 +68,7 @@ class SklearnInstrumentionAsserter:
         )
         if hasattr(estimator, method_name):
             assert instr is not None
-            assert self.instrumentor.decorator in instr.decorators
+            assert self.instrumentor.instrument in instr.instruments
         else:
             assert instr is None
 
@@ -128,7 +128,7 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.decorator not in instr.decorators
+            assert self.instrumentor.instrument not in instr.instruments
 
     def assert_instrumented_packages(self, package_names: List[str]):
         for package_name in package_names:
@@ -169,7 +169,7 @@ class SklearnInstrumentionAsserter:
         instr = getattr(estimator, f"_skli_{method_name}")
         if hasattr(estimator, method_name):
             assert instr is not None
-            assert self.instrumentor.decorator in instr.decorators
+            assert self.instrumentor.instrument in instr.instruments
         else:
             assert instr is None
 
@@ -180,8 +180,8 @@ class SklearnInstrumentionAsserter:
             descriptor, instr_attrib_name, None
         )
 
-        assert self.instrumentor.decorator in instr.decorators
-        assert self.instrumentor.decorator_kwargs in instr.decorator_kwargs
+        assert self.instrumentor.instrument in instr.instruments
+        assert self.instrumentor.instrument_kwargs in instr.instrument_kwargs
         assert instr.wrapper == descriptor.fn
 
     def assert_uninstrumented_packages(
@@ -229,7 +229,7 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.decorator not in instr.decorators
+            assert self.instrumentor.instrument not in instr.instruments
 
     def _assert_uninstrumented_delegator(
         self, delegator: Callable, method_name: str, full: bool = False
@@ -244,6 +244,6 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.decorator not in instr.decorators
-            assert self.instrumentor.decorator_kwargs not in instr.decorator_kwargs
+            assert self.instrumentor.instrument not in instr.instruments
+            assert self.instrumentor.instrument_kwargs not in instr.instrument_kwargs
             assert instr.wrapped == descriptor.fn

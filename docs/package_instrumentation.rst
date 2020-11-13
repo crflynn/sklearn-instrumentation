@@ -18,7 +18,7 @@ Instrument any sklearn compatible package that has ``BaseEstimator``-derived cla
 
     from sklearn_instrumentation import SklearnInstrumentor
 
-    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor = SklearnInstrumentor(instrument=my_instrument)
     instrumentor.instrument_packages(["sklearn", "xgboost", "lightgbm"])
 
 
@@ -36,12 +36,12 @@ Instrument the sklearn package. Then train and predict on a Pipeline model for c
     from sklearn.preprocessing import StandardScaler
 
     from sklearn_instrumentation import SklearnInstrumentor
-    from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
+    from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
 
     logging.basicConfig(level=logging.INFO)
 
     # Create an instrumentor and instrument sklearn
-    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+    instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
     instrumentor.instrument_packages(["sklearn"])
 
     # Create a toy model for classification

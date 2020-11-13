@@ -18,7 +18,7 @@ Instrument any sklearn compatible trained estimator or metaestimator.
 
     from sklearn_instrumentation import SklearnInstrumentor
 
-    instrumentor = SklearnInstrumentor(decorator=my_instrumentation)
+    instrumentor = SklearnInstrumentor(instrument=my_instrumentation)
     instrumentor.instrument_estimator(estimator=my_ml_pipeline)
 
 
@@ -30,7 +30,7 @@ Apply instrumentation to a classifier after fitting, and then remove it.
 
     from sklearn.datasets import load_iris
     from sklearn_instrumentation import SklearnInstrumentor
-    from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
+    from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
     from sklearn.ensemble import RandomForestClassifier
 
     logging.basicConfig(level=logging.INFO)
@@ -44,7 +44,7 @@ Apply instrumentation to a classifier after fitting, and then remove it.
     # Create an instrumentor which decorates BaseEstimator methods with
     # logging output when entering and exiting methods, with time elapsed logged
     # on exit.
-    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+    instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
 
     # Apply the decorator to all BaseEstimators in each of these libraries
     instrumentor.instrument_estimator(rf)

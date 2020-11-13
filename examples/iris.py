@@ -8,11 +8,11 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from sklearn_instrumentation import SklearnInstrumentor
-from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
+from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
 
 logging.basicConfig(level=logging.INFO)
 
-instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
 instrumentor.instrument_packages(["sklearn"])
 
 

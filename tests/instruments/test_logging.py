@@ -3,17 +3,16 @@ import logging
 import pandas as pd
 
 from sklearn_instrumentation import SklearnInstrumentor
-from sklearn_instrumentation.instrumentation.logging import column_logger
-from sklearn_instrumentation.instrumentation.logging import getsizeof_logger
-from sklearn_instrumentation.instrumentation.logging import shape_logger
-from sklearn_instrumentation.instrumentation.logging import time_elapsed_logger
-from sklearn_instrumentation.instrumentor import SklearnMethodInstrumentation
+from sklearn_instrumentation.instruments.logging import ColumnNameLogger
+from sklearn_instrumentation.instruments.logging import GetSizeOfLogger
+from sklearn_instrumentation.instruments.logging import ShapeLogger
+from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
 from sklearn_instrumentation.testing import SklearnInstrumentionAsserter
 
 
 def test_time_elapsed_logger(classification_model, iris, caplog):
     caplog.set_level(logging.INFO)
-    instrumentor = SklearnInstrumentor(decorator=time_elapsed_logger)
+    instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
     classification_model.fit(iris.X_train, iris.y_train)
     assert "elapsed time" not in caplog.text
 
@@ -45,7 +44,7 @@ def test_time_elapsed_logger(classification_model, iris, caplog):
 
 def test_getsizeof_logger(classification_model, iris, caplog):
     caplog.set_level(logging.INFO)
-    instrumentor = SklearnInstrumentor(decorator=getsizeof_logger)
+    instrumentor = SklearnInstrumentor(instrument=GetSizeOfLogger())
     classification_model.fit(iris.X_train, iris.y_train)
     assert "nbytes" not in caplog.text
 
@@ -77,7 +76,7 @@ def test_getsizeof_logger(classification_model, iris, caplog):
 
 def test_shape_logger(classification_model, iris, caplog):
     caplog.set_level(logging.INFO)
-    instrumentor = SklearnInstrumentor(decorator=shape_logger)
+    instrumentor = SklearnInstrumentor(instrument=ShapeLogger())
     classification_model.fit(iris.X_train, iris.y_train)
     assert "shape" not in caplog.text
 
@@ -107,9 +106,9 @@ def test_shape_logger(classification_model, iris, caplog):
     assert len(caplog.records) == 0
 
 
-def test_column_logger(classification_model, iris, caplog):
+def test_column_name_logger(classification_model, iris, caplog):
     caplog.set_level(logging.INFO)
-    instrumentor = SklearnInstrumentor(decorator=column_logger)
+    instrumentor = SklearnInstrumentor(instrument=ColumnNameLogger())
     classification_model.fit(iris.X_train, iris.y_train)
     assert "columns" not in caplog.text
 

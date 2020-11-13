@@ -94,7 +94,7 @@ def test_has_instrumentation(simple_decorator, iris):
     assert not has_instrumentation(LinearRegression, "fit")
     assert not has_instrumentation(lr, "fit")
     assert not has_instrumentation(pipeline, "predict")
-    instrumentor = SklearnInstrumentor(decorator=simple_decorator)
+    instrumentor = SklearnInstrumentor(instrument=simple_decorator)
     instrumentor.instrument_packages(["sklearn"])
     assert has_instrumentation(LinearRegression, "fit")
     assert has_instrumentation(lr, "fit")
