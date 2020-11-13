@@ -1,6 +1,6 @@
 from abc import ABC
 from abc import abstractmethod
-from collections import Callable
+from collections.abc import Callable
 from functools import wraps
 
 
