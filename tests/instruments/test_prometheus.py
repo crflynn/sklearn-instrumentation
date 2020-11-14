@@ -28,7 +28,7 @@ def test_prometheus_histogram(classification_model, iris):
 
     thread = threading.Thread(target=start_server)
     thread.start()
-    time.sleep(2)
+    time.sleep(2)  # slow down for tests on linux
 
     classification_model.predict(iris.X_test)
 
