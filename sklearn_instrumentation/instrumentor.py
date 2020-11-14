@@ -3,6 +3,7 @@ import logging
 from collections.abc import MutableMapping
 from collections.abc import Sequence
 from typing import Callable
+from typing import Iterable
 from typing import List
 from typing import Type
 
@@ -304,6 +305,17 @@ class SklearnInstrumentor:
         :param str package_name: A list of package names.
         """
         estimators = get_estimators_in_package(package_name=package_name)
+        self.instrument_classes(estimators=estimators)
+
+    def instrument_classes(self, estimators: Iterable[Type[BaseEstimator]]):
+        """Instrument multiple BaseEstimator classes.
+
+        Apply this instrumentor's decorator to the methods of several BaseEstimator
+        classes.
+
+        :param Iterable[Type[BaseEstimator]] estimators: Iterable of classes on which to
+            apply instrumentation.
+        """
         for estimator in estimators:
             self.instrument_class(estimator=estimator)
 
