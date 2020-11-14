@@ -7,8 +7,8 @@ from ddtrace import tracer as ddtracer
 from sklearn_instrumentation.instruments.base import BaseInstrument
 
 
-class DatadogTraceSpanner(BaseInstrument):
-    """Instrument for ddtrace spans around method calls.
+class DatadogSpanner(BaseInstrument):
+    """Instrument for ddtrace spans.
 
     :param ddtrace.tracer.Tracer tracer: A tracer instance. Defaults to the
         ddtrace global tracer.

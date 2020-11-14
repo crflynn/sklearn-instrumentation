@@ -28,9 +28,10 @@ include = [
 ]
 
 [tool.poetry.extras]
-all = ["prometheus-client", "ddtrace"]
+all = ["prometheus-client", "ddtrace", "opentelemetry-api"]
 prometheus = ["prometheus-client"]
 datadog = ["ddtrace"]
+opentelemetry = ["opentelemetry-api"]
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
@@ -38,6 +39,7 @@ numpy = "*"
 scikit-learn = "*"
 prometheus-client = {version = "^0.8.0", optional = true}
 ddtrace = {version = "^0.44.0", optional = true}
+opentelemetry-api = {version = "^0.15b0", optional = true}
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

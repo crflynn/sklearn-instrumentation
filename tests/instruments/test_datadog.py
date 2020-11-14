@@ -5,7 +5,7 @@ from ddtrace import Tracer
 from ddtrace.internal.writer import LogWriter
 
 from sklearn_instrumentation import SklearnInstrumentor
-from sklearn_instrumentation.instruments.datadog import DatadogTraceSpanner
+from sklearn_instrumentation.instruments.datadog import DatadogSpanner
 
 
 def _extract_spans(out: StringIO):
@@ -29,7 +29,7 @@ def test_ddtrace_spanner(classification_model, iris):
     t = Tracer()
     out = StringIO()
     t.configure(writer=LogWriter(out=out))
-    instrumentor = SklearnInstrumentor(instrument=DatadogTraceSpanner(tracer=t))
+    instrumentor = SklearnInstrumentor(instrument=DatadogSpanner(tracer=t))
 
     instrumentor.instrument_estimator(classification_model)
 

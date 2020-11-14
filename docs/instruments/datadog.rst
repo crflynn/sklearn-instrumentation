@@ -1,5 +1,11 @@
 Datadog Instruments
 ===================
 
+To use Datadog instrumentation. Install with the ``datadog`` extra:
 
-.. autoclass:: sklearn_instrumentation.instruments.datadog.DatadogTraceSpanner
+.. code-block:: bash
+
+    pip install sklearn-instrumentation[datadog]
+
+
+.. autoclass:: sklearn_instrumentation.instruments.datadog.DatadogSpanner
