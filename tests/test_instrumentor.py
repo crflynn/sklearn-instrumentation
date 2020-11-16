@@ -18,3 +18,13 @@ def test_package_instrumentation(simple_decorator, full):
     asserter.assert_instrumented_packages(["sklearn"])
     instrumentor.uninstrument_packages(["sklearn"], full=full)
     asserter.assert_uninstrumented_packages(["sklearn"], full=full)
+
+
+def test_class_instrumentation(classification_model, simple_decorator, full):
+    instrumentor = SklearnInstrumentor(instrument=simple_decorator)
+    instrumentor.instrument_estimator_classes(classification_model)
+    asserter = SklearnInstrumentionAsserter(instrumentor=instrumentor)
+    classes = instrumentor._get_estimator_classes(classification_model)
+    asserter.assert_instrumented_classes(estimators=classes)
+    instrumentor.uninstrument_estimator_classes(classification_model, full=full)
+    asserter.assert_uninstrumented_classes(classes, full=full)

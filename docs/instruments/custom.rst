@@ -33,7 +33,7 @@ The package comes with a handful of instruments which log information about ``X`
         return wrapper
 
 
-To create a stateful instrument, use a class with the ``__call__`` method for implementing the decorator:
+To create a stateful instrument, inherit from the ``BaseInstrument`` class and use the ``__call__`` method for implementing the decorator:
 
 .. code-block:: python
 

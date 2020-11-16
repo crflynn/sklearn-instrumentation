@@ -5,14 +5,14 @@ Package Instrumentation
 
 Package instrumentation works by crawling modules and submodules, dynamically importing any object and checking to see if it is a subclass of ``sklearn.base.BaseEstimator``. It ignores any modules with ``test`` in the name.
 
-Since instrumentation is implemented by crawling, package instrumentation can sometimes take a few seconds, and will take longer the more packages you include.
+Since instrumentation is implemented by crawling, package instrumentation can take some time, and will take longer the more packages you include.
 
-If you want to instrument prior to *fitting* a model, use **package** instrumentation. Generally, metaestimators like ``sklearn.pipeline.Pipeline`` use cloning when fitting, which won't retain instrumentation applied from **estimator** instrumentation.
+If you want to instrument prior to *fitting* a model, use **package** or **class** instrumentation. Generally, metaestimators like ``sklearn.pipeline.Pipeline`` use cloning when fitting, which won't retain instrumentation applied from **estimator** instrumentation.
 
 Examples
 --------
 
-Instrument any sklearn compatible package that has ``BaseEstimator``-derived classes.
+Instrument all ``BaseEstimator``-derived classes from your favorite sklearn-compatible packages.
 
 .. code-block:: python
 

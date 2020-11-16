@@ -1,4 +1,5 @@
 from typing import Callable
+from typing import Iterable
 from typing import List
 from typing import MutableMapping
 from typing import Sequence
@@ -140,6 +141,9 @@ class SklearnInstrumentionAsserter:
 
     def assert_instrumented_package(self, package_name: str = "sklearn"):
         estimators = get_estimators_in_package(package_name=package_name)
+        self.assert_instrumented_classes(estimators=estimators)
+
+    def assert_instrumented_classes(self, estimators: Iterable[Type[BaseEstimator]]):
         for estimator in estimators:
             self.assert_instrumented_class(estimator=estimator)
 
@@ -214,6 +218,11 @@ class SklearnInstrumentionAsserter:
 
     def assert_uninstrumented_package(self, package_name: str, full: bool = False):
         estimators = get_estimators_in_package(package_name=package_name)
+        self.assert_uninstrumented_classes(estimators=estimators, full=full)
+
+    def assert_uninstrumented_classes(
+        self, estimators: Iterable[Type[BaseEstimator]], full: bool = False
+    ):
         for estimator in estimators:
             self.assert_uninstrumented_class(estimator=estimator, full=full)
 
