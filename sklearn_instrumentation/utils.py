@@ -102,7 +102,12 @@ def method_is_inherited(
 ) -> bool:
     """Indicate if the estimator's method is inherited from a parent class."""
     method = getattr(estimator, method_name)
-    method_class = method.__qualname__.split(".")[0]
+
+    if isinstance(method, property):
+        method_class = method.fget.__qualname__.split(".")[0]
+    else:
+        method_class = method.__qualname__.split(".")[0]
+
     try:
         estimator_class_name = estimator.__name__
     except AttributeError:

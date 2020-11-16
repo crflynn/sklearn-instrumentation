@@ -51,10 +51,10 @@ Apply instrumentation to a classifier after fitting, and then remove it.
 
     # Observe the logging output
     rf.predict(X)
-    # INFO:root:ForestClassifier.predict starting.
-    # INFO:root:ForestClassifier.predict_proba starting.
-    # INFO:root:ForestClassifier.predict_proba elapsed time: 0.014165163040161133 seconds
-    # INFO:root:ForestClassifier.predict elapsed time: 0.014327764511108398 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict starting.
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict_proba starting.
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict_proba elapsed time: 0.014165163040161133 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict elapsed time: 0.014327764511108398 seconds
 
     # Remove the decorator our classifier
     instrumentor.uninstrument_estimator(rf)
