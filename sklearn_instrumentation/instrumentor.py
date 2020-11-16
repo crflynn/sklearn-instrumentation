@@ -98,6 +98,16 @@ class SklearnInstrumentor:
             return wrapper
 
 
+    By default, classes derived from ``sklearn.tree._classes.BaseDecisionTree`` are
+    excluded from instrumentation.
+
+    By default, methods on which instrumentation is applied includes
+    ``_fit``, ``_predict``, ``_predict_proba``, ``_transform``, ``fit``, ``predict``,
+    ``predict_proba``, and ``transform``.
+
+    Methods which are properties are **not** instrumented on instances, but **are**
+    instrumented on classes.
+
     :param Callable instrument: A decorator to apply to sklearn estimator methods. The
         wrapping function signature should be ``(func, **dkwargs)``, where ``func`` is
         the target method and ``dkwargs`` is the instrument_kwargs argument of the
