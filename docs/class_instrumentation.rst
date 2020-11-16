@@ -3,7 +3,7 @@ Class Instrumentation
 
 **Class** instrumentation allows you to instrument any ``sklearn`` compatible class which is a component of an estimator instance (or its metaestimator hierarchy).
 
-Instead of crawling modules and submodules as in package instrumentation, class instrumentation crawls the estimator's hierarchy, instrumenting only objects which are a subclass of ``sklearn.base.BaseEstimator`` that are already imported. Only the classes which are used by the instance are instrumented.
+Instead of crawling modules and submodules as in package instrumentation, class instrumentation crawls the estimator's hierarchy, instrumenting only objects' classes which are a subclass of ``sklearn.base.BaseEstimator`` that are already imported. Only the classes which are used by the instance are instrumented.
 
 This is similar to **estimator** instrumentation, except we instrument the estimators' classes rather than the estimator instances.
 
