@@ -169,8 +169,6 @@ class SklearnInstrumentor:
             )
 
     def _instrument_recursively(self, obj: object, instrument_kwargs=None):
-        if isinstance(obj, FeatureUnion):
-            pass
         if isinstance(obj, (*self.exclude, str, np.ndarray)):
             return
 
@@ -208,10 +206,21 @@ class SklearnInstrumentor:
 
         dkwargs = instrument_kwargs or self.instrument_kwargs
 
-        instr = getattr(estimator, f"_skli_{method_name}", None)
+        instr_attrib_name = self._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
+        instr = getattr(
+            estimator,
+            instr_attrib_name,
+            None,
+        )
         if instr is None:
             instr = SklearnMethodInstrumentation(method)
-            setattr(estimator, f"_skli_{method_name}", instr)
+            setattr(
+                estimator,
+                instr_attrib_name,
+                instr,
+            )
 
         instr.add(instrument=self.instrument, instrument_kwargs=dkwargs)
         setattr(
@@ -367,10 +376,22 @@ class SklearnInstrumentor:
             self._instrument_delegator(delegator=class_method, method_name=method_name)
             return
 
-        instr = getattr(estimator, f"_skli_{method_name}", None)
+        instr_attrib_name = self._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
+        instr = getattr(
+            estimator,
+            instr_attrib_name,
+            None,
+        )
         if instr is None:
             instr = SklearnMethodInstrumentation(class_method)
-            setattr(estimator, f"_skli_{method_name}", instr)
+            setattr(
+                estimator,
+                instr_attrib_name,
+                instr,
+            )
+
         instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
         setattr(
             estimator,
