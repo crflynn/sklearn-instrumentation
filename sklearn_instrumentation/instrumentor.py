@@ -9,12 +9,12 @@ from typing import Type
 
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.pipeline import FeatureUnion
 
 from sklearn_instrumentation.config import DEFAULT_EXCLUDE
 from sklearn_instrumentation.config import DEFAULT_METHODS
 from sklearn_instrumentation.utils import get_delegator
 from sklearn_instrumentation.utils import get_estimators_in_package
+from sklearn_instrumentation.utils import get_method_class
 from sklearn_instrumentation.utils import is_delegator
 from sklearn_instrumentation.utils import method_is_inherited
 
@@ -309,6 +309,88 @@ class SklearnInstrumentor:
 
     # endregion
 
+    # region estimator classes
+    def instrument_estimators_classes(self, estimators: Iterable[BaseEstimator]):
+        """Instrument the classes (not the instances) found in the estimators.
+
+        Lighter version of ``instrument_package``. Instead of crawling the package
+        modules and dynamically importing objects, crawls the estimators' hierarchies
+        and only instruments classes which are already imported. This is generally
+        faster and uses less memory.
+
+        Inspects the (meta)estimator hierarchy, only instrumenting the classes found
+        in the estimator, its methods, and its attributes.
+
+        :param Iterable[BaseEstimator] estimators: Several estimator instances of which
+            to instrument related classes.
+        """
+        classes = set()
+        for estimator in estimators:
+            classes = classes.union(self._get_estimator_classes(estimator))
+            self.instrument_classes(estimators=classes)
+
+    def instrument_estimator_classes(self, estimator: BaseEstimator):
+        """Instrument the classes (not the instances) found in the estimator.
+
+        Lighter version of ``instrument_package``. Instead of crawling the package
+        modules and dynamically importing objects, crawls the estimator hierarchy
+        and only instruments classes which are already imported. This is generally
+        faster and uses less memory.
+
+        Inspects the (meta)estimator hierarchy, only instrumenting the classes found
+        in the estimator, its methods, and its attributes.
+
+        :param BaseEstimator estimator: An estimator instance with which to instrument
+            related classes
+        """
+        classes = self._get_estimator_classes(estimator)
+        self.instrument_classes(estimators=classes)
+
+    def uninstrument_estimator_classes(
+        self, estimator: BaseEstimator, full: bool = False
+    ):
+        """Uninstrument the classes (not the instances) found in the estimator.
+
+        Inspects the (meta)estimator hierarchy, only uninstrumenting the classes found
+        in the estimator, its methods, and its attributes.
+
+        :param BaseEstimator estimator: An estimator instance with which to uninstrument
+            related classes
+        :param bool full: Whether to fully uninstrument the estimator classes.
+        """
+        classes = self._get_estimator_classes(estimator)
+        self.uninstrument_classes(estimators=classes, full=full)
+
+    def _get_estimator_classes(self, obj):
+        classes = set()
+        if isinstance(obj, (*self.exclude, str, np.ndarray)):
+            return classes
+
+        if isinstance(obj, BaseEstimator):
+            class_ = obj.__class__
+            classes.add(class_)
+            for k in dir(class_):
+                v = getattr(class_, k, None)
+                if v is None or not callable(v):
+                    continue
+                v = getattr(obj, k, None)
+                if hasattr(v, "__self__") and k in self.methods:
+                    classes.add(get_method_class(class_, k))
+
+        if hasattr(obj, "__dict__"):
+            for v in obj.__dict__.values():
+                classes = classes.union(self._get_estimator_classes(v))
+        elif isinstance(obj, MutableMapping):
+            for v in obj.values():
+                classes = classes.union(self._get_estimator_classes(v))
+        elif isinstance(obj, Sequence):
+            for o in obj:
+                classes = classes.union(self._get_estimator_classes(o))
+
+        return classes
+
+    # endregion
+
     # region instrumentation package
     def instrument_packages(self, package_names: List[str]):
         """Instrument multiple packages.
@@ -455,15 +537,31 @@ class SklearnInstrumentor:
         :param bool full: Whether to fully uninstrument the packages.
         """
         estimators = get_estimators_in_package(package_name=package_name)
+        self.uninstrument_classes(estimators=estimators, full=full)
+
+    def uninstrument_classes(
+        self, estimators: Iterable[Type[BaseEstimator]], full: bool = False
+    ):
+        """Uninstrument BaseEstimator classes.
+
+        Remove this instrumentor's decorator from the methods of a BaseEstimator
+        classes.
+
+        :param Iterable[Type[BaseEstimator]] estimators: Classes from which to remove
+            instrumentation.
+        :param bool full: Whether to fully uninstrument the estimator classes.
+        """
         for estimator in estimators:
             self.uninstrument_class(estimator=estimator, full=full)
 
     def uninstrument_class(self, estimator: Type[BaseEstimator], full: bool = False):
-        """Instrument a BaseEstimator class.
+        """Uninstrument a BaseEstimator class.
 
-        Apply this instrumentor's decorator to the methods of a BaseEstimator class.
+        Remove this instrumentor's decorator to the methods of a BaseEstimator class.
 
-        :param Type[BaseEstimator] estimator: A class on which to apply instrumentation.
+        :param Type[BaseEstimator] estimator: A class from which to remove
+            instrumentation.
+        :param bool full: Whether to fully uninstrument the estimator class.
         """
         for method_name in self.methods:
             self._uninstrument_class_method(

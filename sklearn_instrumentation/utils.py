@@ -66,6 +66,25 @@ def get_sklearn_estimator_from_method(func: Callable) -> BaseEstimator:
     raise TypeError(err)
 
 
+def get_method_class_name(method: Callable) -> str:
+    if isinstance(method, property):
+        return method.fget.__qualname__.split(".")[0]
+    else:
+        return method.__qualname__.split(".")[0]
+
+
+def get_method_class(estimator: Type[BaseEstimator], method_name: str) -> Type:
+    """Get the class owner of the (possibly inherited) method."""
+    method = getattr(estimator, method_name)
+    method_class_name = get_method_class_name(method=method)
+    if estimator.__name__ == method_class_name:
+        return estimator
+    for class_ in estimator.mro():
+        if class_.__name__ == method_class_name:
+            return class_
+    raise AttributeError("Unable to determine method's class.")
+
+
 def is_class_method(func: Callable) -> bool:
     """Indicate if the method belongs to a class (opposed to an instance)."""
     if list(inspect.signature(func).parameters.keys())[0] == "self":
@@ -102,17 +121,14 @@ def method_is_inherited(
 ) -> bool:
     """Indicate if the estimator's method is inherited from a parent class."""
     method = getattr(estimator, method_name)
-
-    if isinstance(method, property):
-        method_class = method.fget.__qualname__.split(".")[0]
-    else:
-        method_class = method.__qualname__.split(".")[0]
+    method_class_name = get_method_class_name(method=method)
 
     try:
         estimator_class_name = estimator.__name__
     except AttributeError:
         estimator_class_name = estimator.__class__.__name__
-    return method_class != estimator_class_name
+
+    return method_class_name != estimator_class_name
 
 
 def has_instrumentation(
