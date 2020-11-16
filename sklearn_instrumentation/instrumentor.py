@@ -120,6 +120,10 @@ class SklearnInstrumentor:
         self.methods = methods or DEFAULT_METHODS
         self.exclude = tuple(exclude or DEFAULT_EXCLUDE)
 
+    @classmethod
+    def _get_instrumentation_attribute_name(cls, method_name: str):
+        return f"_skli_{method_name}"
+
     # region instrumentation estimator
     def instrument_estimator(
         self,
@@ -181,10 +185,10 @@ class SklearnInstrumentor:
         method_name: str,
         instrument_kwargs: dict = None,
     ):
-        class_attribute = getattr(type(estimator), method_name, None)
+        class_attribute = getattr(estimator.__class__, method_name, None)
         if isinstance(class_attribute, property):
             logger.debug(
-                f"Not instrumenting property: {estimator.__class__.__qualname__}.{method_name}",
+                f"Not instrumenting property on instance of: {estimator.__class__.__qualname__}.{method_name}",
             )
             return
 
@@ -342,13 +346,11 @@ class SklearnInstrumentor:
         if class_method is None:
             return
 
-        if isinstance(class_method, property):
-            logger.debug(
-                f"Not instrumenting property: {estimator.__qualname__}.{method_name}",
-            )
+        if method_is_inherited(estimator=estimator, method_name=method_name):
             return
 
-        if method_is_inherited(estimator=estimator, method_name=method_name):
+        if isinstance(class_method, property):
+            self._instrument_property(estimator=estimator, method_name=method_name)
             return
 
         if is_delegator(func=class_method):
@@ -366,8 +368,25 @@ class SklearnInstrumentor:
             instr.wrapper,
         )
 
+    def _instrument_property(self, estimator: Type[BaseEstimator], method_name: str):
+        instr_attrib_name = self._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
+        property_: property = getattr(estimator, method_name)
+        wrapped_method = property_.fget
+        instr = getattr(estimator, instr_attrib_name, None)
+        if instr is None:
+            instr = SklearnMethodInstrumentation(wrapped_method)
+            setattr(estimator, instr_attrib_name, instr)
+
+        instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
+
+        setattr(estimator, method_name, property(instr.wrapper))
+
     def _instrument_delegator(self, delegator: Callable, method_name: str):
-        instr_attrib_name = self._get_instrumentation_attribute_name(method_name)
+        instr_attrib_name = self._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
         descriptor = get_delegator(delegator)
         instr = getattr(descriptor, instr_attrib_name, None)
         if instr is None:
@@ -430,10 +449,11 @@ class SklearnInstrumentor:
         if class_method is None:
             return
 
-        if isinstance(class_method, property):
+        if method_is_inherited(estimator=estimator, method_name=method_name):
             return
 
-        if method_is_inherited(estimator=estimator, method_name=method_name):
+        if isinstance(class_method, property):
+            self._uninstrument_property(estimator=estimator, method_name=method_name)
             return
 
         if is_delegator(func=class_method):
@@ -457,6 +477,27 @@ class SklearnInstrumentor:
         else:
             setattr(estimator, method_name, instr.wrapper)
 
+    def _uninstrument_property(
+        self, estimator: Type[BaseEstimator], method_name: str, full: bool = False
+    ):
+        instr_attrib_name = self._get_instrumentation_attribute_name(method_name)
+        instr = getattr(estimator, instr_attrib_name, None)
+        if instr is None:
+            return
+
+        instr: SklearnMethodInstrumentation
+        instr.remove(instrument=self.instrument)
+
+        if full or instr.empty():
+            setattr(
+                estimator,
+                method_name,
+                property(instr.wrapped),
+            )
+            delattr(estimator, instr_attrib_name)
+        else:
+            setattr(estimator, method_name, property(instr.wrapper))
+
     def _uninstrument_delegator(
         self, delegator: Callable, method_name: str, full: bool = False
     ):
@@ -478,8 +519,5 @@ class SklearnInstrumentor:
             delattr(descriptor, instr_attrib_name)
         else:
             setattr(descriptor, "fn", instr.wrapper)
-
-    def _get_instrumentation_attribute_name(self, method_name: str):
-        return f"_skli_{method_name}"
 
     # endregion
