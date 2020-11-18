@@ -23,7 +23,7 @@ intervaltree==3.1.0; python_version >= "2.7" and python_full_version < "3.0.0" o
 isort==5.6.4; python_version >= "3.6" and python_version < "4.0"
 jinja2==2.11.2; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 joblib==0.17.0; python_version >= "3.6"
-lightgbm==3.0.0
+lightgbm==3.1.0
 markupsafe==1.1.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 mypy-extensions==0.4.3; python_version >= "3.6"
 numpy==1.19.4; python_version >= "3.6"
@@ -37,6 +37,8 @@ prometheus-client==0.8.0
 protobuf==3.14.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 py==1.9.0; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 pygments==2.7.2; python_version >= "3.5"
+pyinstrument-cext==0.2.3
+pyinstrument==3.2.0
 pyparsing==2.4.7; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.5"
 pytest-cov==2.10.1; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 pytest==6.1.2; python_version >= "3.5"
