@@ -1,7 +1,7 @@
 OpenTelemetry Instruments
 =========================
 
-To use OpenTelemetry instrumentation. Install with the ``opentelemetry`` extra:
+To use OpenTelemetry instrumentation, install with the ``opentelemetry`` extra:
 
 .. code-block:: bash
 

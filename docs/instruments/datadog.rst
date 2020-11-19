@@ -1,7 +1,7 @@
 Datadog Instruments
 ===================
 
-To use Datadog instrumentation. Install with the ``datadog`` extra:
+To use Datadog instrumentation, install with the ``datadog`` extra:
 
 .. code-block:: bash
 

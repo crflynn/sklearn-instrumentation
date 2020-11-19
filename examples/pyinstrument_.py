@@ -34,8 +34,6 @@ classification_model = Pipeline(
 X, y = load_iris(return_X_y=True)
 
 if __name__ == "__main__":
-    p = Profiler(interval=0.001)
-
     profiler = PyInstrumentProfiler()
     instrumentor = SklearnInstrumentor(instrument=profiler)
 
