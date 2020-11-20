@@ -712,7 +712,7 @@ name = "statsd"
 version = "3.3.0"
 description = "A simple statsd client."
 category = "main"
-optional = false
+optional = true
 python-versions = "*"
 
 [[package]]
@@ -806,17 +806,18 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pytest-cov", "jaraco.test (>=3.2.0)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-all = ["prometheus-client", "ddtrace", "opentelemetry-api", "pyinstrument", "memory-profiler"]
+all = ["prometheus-client", "ddtrace", "opentelemetry-api", "pyinstrument", "memory-profiler", "statsd"]
 datadog = ["ddtrace"]
 memory-profiler = ["memory-profiler"]
 opentelemetry = ["opentelemetry-api"]
 prometheus = ["prometheus-client"]
 pyinstrument = ["pyinstrument"]
+statsd = ["statsd"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "9633bfa307e25fe01edb1ea3b3a6b78fdf8acc3ba58ae3feadcbd7e6342f3d00"
+content-hash = "36a6d5e8342449b810bcccee32b5aa74440f72316753872f1d38359df8bb3ef3"
 
 [metadata.files]
 aiocontextvars = [

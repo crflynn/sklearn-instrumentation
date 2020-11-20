@@ -1,4 +1,3 @@
-Warning: The lock file is not up to date with the latest changes in pyproject.toml. You may be getting outdated dependencies. Run update to update them.
 aiocontextvars==0.2.2; python_version < "3.7" and python_version >= "3.5"
 alabaster==0.7.12; python_version >= "3.5"
 appdirs==1.4.4; python_version >= "3.6"
