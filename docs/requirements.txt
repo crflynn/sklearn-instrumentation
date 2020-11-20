@@ -1,3 +1,4 @@
+Warning: The lock file is not up to date with the latest changes in pyproject.toml. You may be getting outdated dependencies. Run update to update them.
 aiocontextvars==0.2.2; python_version < "3.7" and python_version >= "3.5"
 alabaster==0.7.12; python_version >= "3.5"
 appdirs==1.4.4; python_version >= "3.6"
@@ -61,6 +62,7 @@ sphinxcontrib-htmlhelp==1.0.3; python_version >= "3.5"
 sphinxcontrib-jsmath==1.0.1; python_version >= "3.5"
 sphinxcontrib-qthelp==1.0.3; python_version >= "3.5"
 sphinxcontrib-serializinghtml==1.1.4; python_version >= "3.5"
+statsd==3.3.0
 tenacity==6.2.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 threadpoolctl==2.1.0; python_version >= "3.6"
 toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"

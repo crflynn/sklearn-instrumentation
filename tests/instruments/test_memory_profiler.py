@@ -1,5 +1,3 @@
-from io import StringIO
-
 import pytest
 
 from sklearn_instrumentation import SklearnInstrumentor

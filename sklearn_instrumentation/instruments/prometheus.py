@@ -34,11 +34,11 @@ class BasePrometheus(BaseInstrument):
                 self.enumerations[key].append(func)
             labels["qualname"] = f"{func.__qualname__}-{idx}"
 
-        summarylabels = self.metric.labels(**labels)
+        metric_labels = self.metric.labels(**labels)
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            with summarylabels.time():
+            with metric_labels.time():
                 return func(*args, **kwargs)
 
         return wrapper
