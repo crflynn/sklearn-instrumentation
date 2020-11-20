@@ -47,6 +47,7 @@ Instrumentation works by applying decorators to methods of ``BaseEstimator``-der
    instruments/prometheus
    instruments/datadog
    instruments/opentelemetry
+   instruments/statsd
    instruments/custom
    utils
 

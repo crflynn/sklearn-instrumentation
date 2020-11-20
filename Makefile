@@ -25,3 +25,6 @@ publish: clean build
 
 release: clean build
 	ghr -u crflynn -r sklearn-instrumentation -c $(shell git rev-parse HEAD) -delete -b "release" -n $(shell poetry version | tail -c +25) $(shell poetry version | tail -c +25) dist/
+
+statsd:
+	docker run --rm -it -p 8080:8080 -p 8125:8125/udp -p 8125:8125/tcp rapidloop/statsd-vis -statsdudp 0.0.0.0:8125 -statsdtcp 0.0.0.0:8125
