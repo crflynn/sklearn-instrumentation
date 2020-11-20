@@ -1,6 +1,13 @@
 Release Changelog
 -----------------
 
+0.3.0 (2020-11-19)
+~~~~~~~~~~~~~~~~~~
+
+* Add instruments for prometheus, datadog, opentelemetry, statsd, memory-profiler, pyinstrument
+* Add class instrumentation
+* Add instrumentation of properties on classes (but not on instances)
+
 0.2.0 (2020-11-12)
 ~~~~~~~~~~~~~~~~~~
 
