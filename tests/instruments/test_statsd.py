@@ -1,6 +1,8 @@
+import os
 import socketserver
 from threading import Thread
 
+import pytest
 from statsd import StatsClient
 
 from sklearn_instrumentation import SklearnInstrumentor
@@ -22,6 +24,7 @@ class StatsUDPHandler(socketserver.BaseRequestHandler):
 server = socketserver.UDPServer(("localhost", 8125), StatsUDPHandler)
 
 
+@pytest.mark.skipif(os.getenv("CI"), reason="no port allocation on ci")
 def test_statsd_timer(classification_model, iris):
     thread = Thread(target=server.serve_forever)
     thread.start()
