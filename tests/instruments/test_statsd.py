@@ -24,7 +24,7 @@ class StatsUDPHandler(socketserver.BaseRequestHandler):
 server = socketserver.UDPServer(("localhost", 8125), StatsUDPHandler)
 
 
-@pytest.mark.skipif(os.getenv("CI"), reason="no port allocation on ci")
+@pytest.mark.skipif(os.getenv("CI") is not None, reason="no port allocation on ci")
 def test_statsd_timer(classification_model, iris):
     thread = Thread(target=server.serve_forever)
     thread.start()
