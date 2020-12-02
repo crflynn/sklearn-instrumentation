@@ -17,7 +17,7 @@ docutils==0.16; python_version >= "3.5" and python_full_version < "3.0.0" or pyt
 idna==2.10; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 imagesize==1.2.0; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" and python_version >= "3.5"
 immutables==0.14; python_version < "3.7" and python_version >= "3.5"
-importlib-metadata==2.0.0; python_version >= "3.5" and python_full_version < "3.0.0" and python_version < "3.8" and (python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5") or python_version < "3.8" and python_version >= "3.5" and python_full_version >= "3.5.0" and (python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5")
+importlib-metadata==3.1.1; python_version < "3.8" and python_version >= "3.6" and (python_version >= "3.6" and python_full_version < "3.0.0" and python_version < "3.8" or python_full_version >= "3.4.0" and python_version >= "3.6" and python_version < "3.8") and (python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5")
 iniconfig==1.1.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 intervaltree==3.1.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 isort==5.6.4; python_version >= "3.6" and python_version < "4.0"
@@ -28,9 +28,9 @@ markupsafe==1.1.1; python_version >= "3.5" and python_full_version < "3.0.0" or 
 memory-profiler==0.58.0; python_version >= "3.4"
 mypy-extensions==0.4.3; python_version >= "3.6"
 numpy==1.19.4; python_version >= "3.6"
-opentelemetry-api==0.15b0; python_version >= "3.5"
-opentelemetry-sdk==0.15b0; python_version >= "3.5"
-packaging==20.4; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
+opentelemetry-api==0.16b1; python_version >= "3.5"
+opentelemetry-sdk==0.16b1; python_version >= "3.5"
+packaging==20.7; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 pandas==1.1.4; python_full_version >= "3.6.1"
 pathspec==0.8.1; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
 pluggy==0.13.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
@@ -50,7 +50,8 @@ regex==2020.11.13; python_version >= "3.6"
 requests==2.25.0; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.5.0")
 scikit-learn==0.23.2; python_version >= "3.6"
 scipy==1.5.4; python_version >= "3.6"
-six==1.15.0; python_full_version >= "3.6.1" and python_version >= "3.5"
+six==1.15.0; python_full_version >= "3.6.1"
+snakeviz==2.1.0
 snowballstemmer==2.0.0; python_version >= "3.5"
 sortedcontainers==2.3.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 sphinx-rtd-theme==0.5.0
@@ -65,8 +66,9 @@ statsd==3.3.0
 tenacity==6.2.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 threadpoolctl==2.1.0; python_version >= "3.6"
 toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.6"
+tornado==6.1; python_version >= "3.5"
 typed-ast==1.4.1; python_version >= "3.6"
 typing-extensions==3.7.4.3; python_version >= "3.6"
 urllib3==1.26.2; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version < "4" and python_version >= "3.5"
 xgboost==1.2.1; python_version >= "3.6"
-zipp==3.4.0; python_version >= "3.6" and python_full_version < "3.0.0" and python_version < "3.8" or python_version < "3.8" and python_version >= "3.6" and python_full_version >= "3.5.0"
+zipp==3.4.0; python_version < "3.8" and python_version >= "3.6"

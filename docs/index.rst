@@ -42,6 +42,7 @@ Instrumentation works by applying decorators to methods of ``BaseEstimator``-der
    configuration
    instruments/base
    instruments/logging
+   instruments/cprofile
    instruments/memory_profiler
    instruments/pyinstrument
    instruments/prometheus
