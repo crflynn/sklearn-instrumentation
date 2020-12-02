@@ -66,6 +66,7 @@ pytest-cov = "^2.10.1"
 xgboost = "^1.2.1"
 lightgbm = "^3.0.0"
 requests = "^2.25.0"
+snakeviz = "^2.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
