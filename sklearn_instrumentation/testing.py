@@ -47,7 +47,11 @@ class SklearnInstrumentionAsserter:
             self._assert_instrumented_estimator(estimator=obj)
 
         if hasattr(obj, "__dict__"):
-            for v in obj.__dict__.values():
+            for k, v in obj.__dict__.items():
+                if k.startswith(
+                    SklearnInstrumentor._get_instrumentation_attribute_prefix()
+                ):
+                    continue
                 self._assert_instrumented_recursively(obj=v)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
@@ -97,7 +101,11 @@ class SklearnInstrumentionAsserter:
             self._assert_uninstrumented_estimator(estimator=obj, full=full)
 
         if hasattr(obj, "__dict__"):
-            for v in obj.__dict__.values():
+            for k, v in obj.__dict__.items():
+                if k.startswith(
+                    SklearnInstrumentor._get_instrumentation_attribute_prefix()
+                ):
+                    continue
                 self._assert_uninstrumented_recursively(obj=v, full=full)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
