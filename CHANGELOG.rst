@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.4.1 (2020-12-14)
+~~~~~~~~~~~~~~~~~~
+
+* Avoid instrumentor recursion against instrumentor-created attributes
+
 0.4.0 (2020-12-05)
 ~~~~~~~~~~~~~~~~~~
 

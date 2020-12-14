@@ -132,7 +132,12 @@ class SklearnInstrumentor:
 
     @classmethod
     def _get_instrumentation_attribute_name(cls, method_name: str):
-        return f"_skli_{method_name}"
+        prefix = cls._get_instrumentation_attribute_prefix()
+        return f"{prefix}{method_name}"
+
+    @classmethod
+    def _get_instrumentation_attribute_prefix(cls):
+        return "_skli_"
 
     # region instrumentation estimator
     def instrument_estimator(
@@ -178,7 +183,9 @@ class SklearnInstrumentor:
             )
 
         if hasattr(obj, "__dict__"):
-            for v in obj.__dict__.values():
+            for k, v in obj.__dict__.items():
+                if k.startswith(self._get_instrumentation_attribute_prefix()):
+                    continue
                 self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
@@ -257,7 +264,9 @@ class SklearnInstrumentor:
             self._uninstrument_estimator(estimator=obj, full=full)
 
         if hasattr(obj, "__dict__"):
-            for v in obj.__dict__.values():
+            for k, v in obj.__dict__.items():
+                if k.startswith(self._get_instrumentation_attribute_prefix()):
+                    continue
                 self._uninstrument_recursively(obj=v, full=full)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
