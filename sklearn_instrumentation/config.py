@@ -1,8 +1,10 @@
+from enum import Enum
+
 from sklearn.tree import BaseDecisionTree
 
 #: By default, exclude these types from instrumentation.
-#: The default setting is to exclude ``BaseDecisionTree``
-DEFAULT_EXCLUDE = [BaseDecisionTree]
+#: The default setting is to exclude ``BaseDecisionTree`` and ``Enum``
+DEFAULT_EXCLUDE = [BaseDecisionTree, Enum]
 
 #: By default, instrument these methods on all BaseEstimators.
 #: The default is to instrument ``_fit``, ``_predict``,
