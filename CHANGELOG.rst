@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.5.0 (2021-03-24)
+~~~~~~~~~~~~~~~~~~
+
+* Exclude enums from instrumentation
+
 0.4.1 (2020-12-14)
 ~~~~~~~~~~~~~~~~~~
 
