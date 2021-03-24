@@ -261,7 +261,10 @@ class SklearnInstrumentor:
             self._uninstrument_estimator(estimator=estimator, full=full)
 
     def _uninstrument_recursively(self, obj: object, full: bool = False):
-        if isinstance(obj, (*self.exclude, str, np.ndarray, Enum)):
+        if isinstance(obj, tuple(self.exclude)):
+            return
+
+        if isinstance(obj, (str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):
