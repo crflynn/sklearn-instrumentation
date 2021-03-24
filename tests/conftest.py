@@ -1,9 +1,12 @@
 import logging
 from dataclasses import dataclass
+from enum import Enum
 from functools import wraps
 
 import numpy as np
 import pytest
+from sklearn.base import BaseEstimator
+from sklearn.base import TransformerMixin
 from sklearn.datasets import load_boston
 from sklearn.datasets import load_iris
 from sklearn.decomposition import PCA
@@ -23,6 +26,22 @@ class TrainTestSet:
     y_test: np.ndarray
 
 
+class SomeEnum(Enum):
+    A = 1
+    B = 2
+
+
+class TransformerWithEnum(BaseEstimator, TransformerMixin):
+    def __init__(self, param: SomeEnum):
+        self.param = param
+
+    def fit(self, X, y):
+        return self
+
+    def transform(self, X):
+        return X
+
+
 @pytest.fixture(scope="function")
 def regression_model(request):
     pipeline = Pipeline(
@@ -36,6 +55,7 @@ def regression_model(request):
                     ]
                 ),
             ),
+            ("et", TransformerWithEnum(param=SomeEnum.A)),
             ("rf", RandomForestRegressor()),
         ]
     )
@@ -55,6 +75,7 @@ def classification_model(request):
                     ]
                 ),
             ),
+            ("et", TransformerWithEnum(param=SomeEnum.A)),
             ("rf", RandomForestClassifier()),
         ]
     )
@@ -76,6 +97,7 @@ def classification_model_multi(request):
                     ]
                 ),
             ),
+            ("et", TransformerWithEnum(param=SomeEnum.A)),
             ("rf", RandomForestClassifier()),
         ]
     )

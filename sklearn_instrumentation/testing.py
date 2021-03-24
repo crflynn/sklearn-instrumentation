@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Callable
 from typing import Iterable
 from typing import List
@@ -40,7 +41,7 @@ class SklearnInstrumentionAsserter:
             self._assert_uninstrumented_estimator(estimator=obj, full=full)
             return
 
-        if isinstance(obj, (str, np.ndarray)):
+        if isinstance(obj, (str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):
@@ -94,7 +95,7 @@ class SklearnInstrumentionAsserter:
             self._assert_uninstrumented_estimator(estimator=obj, full=full)
             return
 
-        if isinstance(obj, (str, np.ndarray)):
+        if isinstance(obj, (str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):

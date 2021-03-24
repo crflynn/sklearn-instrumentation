@@ -38,7 +38,7 @@ def test_ddtrace_spanner(classification_model, iris):
 
     all_spans = _extract_spans(out=out)
     num_spans = len(all_spans)
-    assert num_spans == 7
+    assert num_spans == 8
 
     assert all_spans[0]["name"] == "Pipeline.predict"
     assert all_spans[0]["parent_id"] == "0000000000000000"
@@ -48,12 +48,14 @@ def test_ddtrace_spanner(classification_model, iris):
     assert all_spans[2]["parent_id"] == all_spans[1]["span_id"]
     assert all_spans[3]["name"] == "_BasePCA.transform"
     assert all_spans[3]["parent_id"] == all_spans[1]["span_id"]
-    assert all_spans[4]["name"] == "ForestClassifier.predict"
+    assert all_spans[4]["name"] == "TransformerWithEnum.transform"
     assert all_spans[4]["parent_id"] == all_spans[0]["span_id"]
-    assert all_spans[5]["name"] == "ForestClassifier.predict_proba"
-    assert all_spans[5]["parent_id"] == all_spans[4]["span_id"]
-    assert all_spans[6]["name"] == "parent"
-    assert all_spans[6]["parent_id"] == "0000000000000000"
+    assert all_spans[5]["name"] == "ForestClassifier.predict"
+    assert all_spans[5]["parent_id"] == all_spans[0]["span_id"]
+    assert all_spans[6]["name"] == "ForestClassifier.predict_proba"
+    assert all_spans[6]["parent_id"] == all_spans[5]["span_id"]
+    assert all_spans[7]["name"] == "parent"
+    assert all_spans[7]["parent_id"] == "0000000000000000"
 
     instrumentor.uninstrument_estimator(classification_model)
 
