@@ -21,7 +21,7 @@ importlib-metadata==3.1.1; python_version < "3.8" and python_version >= "3.6" an
 iniconfig==1.1.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 intervaltree==3.1.0; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.5.0"
 isort==5.6.4; python_version >= "3.6" and python_version < "4.0"
-jinja2==2.11.2; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
+jinja2==2.11.3; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
 joblib==0.17.0; python_version >= "3.6"
 lightgbm==3.1.0
 markupsafe==1.1.1; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version >= "3.5"
@@ -69,6 +69,6 @@ toml==0.10.2; python_version >= "3.6" and python_full_version < "3.0.0" or pytho
 tornado==6.1; python_version >= "3.5"
 typed-ast==1.4.1; python_version >= "3.6"
 typing-extensions==3.7.4.3; python_version >= "3.6"
-urllib3==1.26.2; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version < "4" and python_version >= "3.5"
+urllib3==1.26.4; python_version >= "3.5" and python_full_version < "3.0.0" or python_full_version >= "3.5.0" and python_version < "4" and python_version >= "3.5"
 xgboost==1.2.1; python_version >= "3.6"
 zipp==3.4.0; python_version < "3.8" and python_version >= "3.6"
