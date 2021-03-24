@@ -2,6 +2,7 @@ import copy
 import logging
 from collections.abc import MutableMapping
 from collections.abc import Sequence
+from enum import Enum
 from typing import Callable
 from typing import Iterable
 from typing import List
@@ -174,7 +175,10 @@ class SklearnInstrumentor:
             )
 
     def _instrument_recursively(self, obj: object, instrument_kwargs=None):
-        if isinstance(obj, (*self.exclude, str, np.ndarray)):
+        if isinstance(obj, tuple(self.exclude)):
+            return
+
+        if isinstance(obj, (str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):
@@ -257,7 +261,7 @@ class SklearnInstrumentor:
             self._uninstrument_estimator(estimator=estimator, full=full)
 
     def _uninstrument_recursively(self, obj: object, full: bool = False):
-        if isinstance(obj, (*self.exclude, str, np.ndarray)):
+        if isinstance(obj, (*self.exclude, str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):
@@ -372,7 +376,10 @@ class SklearnInstrumentor:
 
     def _get_estimator_classes(self, obj):
         classes = set()
-        if isinstance(obj, (*self.exclude, str, np.ndarray)):
+        if isinstance(obj, tuple(self.exclude)):
+            return classes
+
+        if isinstance(obj, (str, np.ndarray, Enum)):
             return classes
 
         if isinstance(obj, BaseEstimator):

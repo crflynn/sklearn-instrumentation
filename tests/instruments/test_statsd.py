@@ -52,10 +52,11 @@ def test_statsd_timer(classification_model, iris):
         if c == "|":
             idxs.append(idx + 3)
     parts = [received[i:j] for i, j in zip(idxs, idxs[1:] + [None])]
-    assert len(parts) == 6
+    assert len(parts) == 7
     expected_starts_with = [
         "mymodel._BasePCA.transform-0:",
         "mymodel.FeatureUnion.transform-0:",
+        "mymodel.TransformerWithEnum.transform-0:",
         "mymodel.ForestClassifier.predict_proba-0:",
         "mymodel.ForestClassifier.predict-0:",
         "mymodel.Pipeline.predict-0:",

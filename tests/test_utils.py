@@ -3,12 +3,9 @@ import logging
 import pytest
 from sklearn.base import BaseEstimator
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.ensemble._forest import BaseForest
 from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import FeatureUnion
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 
 from sklearn_instrumentation import SklearnInstrumentor
 from sklearn_instrumentation.utils import compose_decorators
