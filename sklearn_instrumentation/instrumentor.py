@@ -115,7 +115,7 @@ class SklearnInstrumentor:
         instrumentor.
     :param dict instrument_kwargs: Keyword args to be passed to the decorator.
     :param list(str) methods: A list of method names on which to apply decorators.
-    :param list(BaseEstimator) exclude: A list of classes for which instrumentation
+    :param list(Type) exclude: A list of types for which instrumentation
         should be skipped.
     """
 
@@ -124,7 +124,7 @@ class SklearnInstrumentor:
         instrument: Callable,
         instrument_kwargs: dict = None,
         methods: List[str] = None,
-        exclude: List[BaseEstimator] = None,
+        exclude: List[Type] = None,
     ):
         self.instrument = instrument
         self.instrument_kwargs = instrument_kwargs or {}
@@ -176,9 +176,6 @@ class SklearnInstrumentor:
 
     def _instrument_recursively(self, obj: object, instrument_kwargs=None):
         if isinstance(obj, tuple(self.exclude)):
-            return
-
-        if isinstance(obj, (str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):
@@ -262,9 +259,6 @@ class SklearnInstrumentor:
 
     def _uninstrument_recursively(self, obj: object, full: bool = False):
         if isinstance(obj, tuple(self.exclude)):
-            return
-
-        if isinstance(obj, (str, np.ndarray, Enum)):
             return
 
         if isinstance(obj, BaseEstimator):
