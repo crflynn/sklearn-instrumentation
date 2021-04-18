@@ -1,6 +1,13 @@
 Release Changelog
 -----------------
 
+0.6.0 (2021-04-17)
+~~~~~~~~~~~~~~~~~~
+
+* Exclude bytes from instrumentation
+* Move ignored types from instrumentor into ``DEFAULT_EXCLUDE``
+* Add ``predict_log_proba`` and ``_predict_log_proba`` to ``DEFAULT_METHODS``
+
 0.5.0 (2021-03-24)
 ~~~~~~~~~~~~~~~~~~
 

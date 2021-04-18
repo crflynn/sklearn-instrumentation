@@ -21,10 +21,12 @@ Instrumentation works by applying decorators to methods of ``BaseEstimator``-der
 
 * fit
 * predict
+* predict_log_proba
 * predict_proba
 * transform
 * _fit
 * _predict
+* _predict_log_proba
 * _predict_proba
 * _transform
 

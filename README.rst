@@ -22,10 +22,12 @@ Instrumentation applies decorators to methods of ``BaseEstimator``-derived class
 
 * fit
 * predict
+* predict_log_proba
 * predict_proba
 * transform
 * _fit
 * _predict
+* _predict_log_proba
 * _predict_proba
 * _transform
 
