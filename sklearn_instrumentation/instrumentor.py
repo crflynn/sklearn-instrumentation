@@ -2,13 +2,11 @@ import copy
 import logging
 from collections.abc import MutableMapping
 from collections.abc import Sequence
-from enum import Enum
 from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import Type
 
-import numpy as np
 from sklearn.base import BaseEstimator
 
 from sklearn_instrumentation.config import DEFAULT_EXCLUDE
