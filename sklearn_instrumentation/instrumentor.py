@@ -376,9 +376,6 @@ class SklearnInstrumentor:
         if isinstance(obj, tuple(self.exclude)):
             return classes
 
-        if isinstance(obj, (str, np.ndarray, Enum)):
-            return classes
-
         if isinstance(obj, BaseEstimator):
             class_ = obj.__class__
             classes.add(class_)
