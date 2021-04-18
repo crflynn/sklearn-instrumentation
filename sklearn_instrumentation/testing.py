@@ -38,10 +38,8 @@ class SklearnInstrumentionAsserter:
 
     def _assert_instrumented_recursively(self, obj: object, full: bool = False):
         if isinstance(obj, self.instrumentor.exclude):
-            self._assert_uninstrumented_estimator(estimator=obj, full=full)
-            return
-
-        if isinstance(obj, (str, np.ndarray, Enum)):
+            if isinstance(obj, BaseEstimator):
+                self._assert_uninstrumented_estimator(estimator=obj, full=full)
             return
 
         if isinstance(obj, BaseEstimator):
@@ -92,10 +90,8 @@ class SklearnInstrumentionAsserter:
 
     def _assert_uninstrumented_recursively(self, obj: object, full: bool = False):
         if isinstance(obj, self.instrumentor.exclude):
-            self._assert_uninstrumented_estimator(estimator=obj, full=full)
-            return
-
-        if isinstance(obj, (str, np.ndarray, Enum)):
+            if isinstance(obj, BaseEstimator):
+                self._assert_uninstrumented_estimator(estimator=obj, full=full)
             return
 
         if isinstance(obj, BaseEstimator):
