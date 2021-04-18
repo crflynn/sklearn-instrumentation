@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.6.1 (2021-04-17)
+~~~~~~~~~~~~~~~~~~
+
+* Removed an extra type exclusion check in instrumentor.
+
 0.6.0 (2021-04-17)
 ~~~~~~~~~~~~~~~~~~
 
