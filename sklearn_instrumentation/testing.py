@@ -1,4 +1,3 @@
-from enum import Enum
 from typing import Callable
 from typing import Iterable
 from typing import List
@@ -6,7 +5,6 @@ from typing import MutableMapping
 from typing import Sequence
 from typing import Type
 
-import numpy as np
 from sklearn.base import BaseEstimator
 
 from sklearn_instrumentation.instrumentor import SklearnInstrumentor
@@ -76,7 +74,7 @@ class SklearnInstrumentionAsserter:
         )
         if hasattr(estimator, method_name):
             assert instr is not None
-            assert self.instrumentor.instrument in instr.instruments
+            assert self.instrumentor.instrument in instr.callables
         else:
             assert instr is None
 
@@ -138,7 +136,7 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.instrument not in instr.instruments
+            assert self.instrumentor.instrument not in instr.callables
 
     def assert_instrumented_packages(self, package_names: List[str]):
         for package_name in package_names:
@@ -185,7 +183,7 @@ class SklearnInstrumentionAsserter:
         instr = getattr(estimator, f"_skli_{method_name}")
         if hasattr(estimator, method_name):
             assert instr is not None
-            assert self.instrumentor.instrument in instr.instruments
+            assert self.instrumentor.instrument in instr.callables
         else:
             assert instr is None
 
@@ -198,8 +196,8 @@ class SklearnInstrumentionAsserter:
         property_: property = getattr(estimator, method_name)
         instr: SklearnMethodInstrumentation = getattr(estimator, instr_attrib_name)
 
-        assert self.instrumentor.instrument in instr.instruments
-        assert self.instrumentor.instrument_kwargs in instr.instrument_kwargs
+        assert self.instrumentor.instrument in instr.callables
+        assert self.instrumentor.instrument_kwargs in instr.kwargs
         assert instr.wrapper == property_.fget
 
     def _assert_instrumented_delegator(self, delegator: Callable, method_name: str):
@@ -211,8 +209,8 @@ class SklearnInstrumentionAsserter:
             descriptor, instr_attrib_name, None
         )
 
-        assert self.instrumentor.instrument in instr.instruments
-        assert self.instrumentor.instrument_kwargs in instr.instrument_kwargs
+        assert self.instrumentor.instrument in instr.callables
+        assert self.instrumentor.instrument_kwargs in instr.kwargs
         assert instr.wrapper == descriptor.fn
 
     def assert_uninstrumented_packages(
@@ -268,7 +266,7 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.instrument not in instr.instruments
+            assert self.instrumentor.instrument not in instr.callables
 
     def _assert_uninstrumented_property(
         self, estimator: Type[BaseEstimator], method_name: str, full: bool = False
@@ -284,8 +282,8 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.instrument not in instr.instruments
-            assert self.instrumentor.instrument_kwargs not in instr.instrument_kwargs
+            assert self.instrumentor.instrument not in instr.callables
+            assert self.instrumentor.instrument_kwargs not in instr.kwargs
             property_: property = getattr(estimator, method_name)
             assert instr.wrapped == property_.fget
 
@@ -303,7 +301,7 @@ class SklearnInstrumentionAsserter:
             assert instr is None
 
         if instr is not None:
-            assert self.instrumentor.instrument not in instr.instruments
-            assert self.instrumentor.instrument_kwargs not in instr.instrument_kwargs
+            assert self.instrumentor.instrument not in instr.callables
+            assert self.instrumentor.instrument_kwargs not in instr.kwargs
             descriptor = get_delegator(delegator)
             assert instr.wrapped == descriptor.fn
