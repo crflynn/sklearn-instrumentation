@@ -2,6 +2,7 @@ import copy
 import logging
 from collections.abc import MutableMapping
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Callable
 from typing import Iterable
 from typing import List
@@ -20,6 +21,12 @@ from sklearn_instrumentation.utils import method_is_inherited
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class ImplementedInstrument:
+    callable: Callable
+    kwargs: dict
+
+
 class SklearnMethodInstrumentation:
     """Container for multiple decorators of the same function.
 
@@ -29,8 +36,15 @@ class SklearnMethodInstrumentation:
     def __init__(self, func: Callable):
         self.wrapped = func
         self.wrapper = func
-        self.instruments = []
-        self.instrument_kwargs = []
+        self.instruments: List[ImplementedInstrument] = []
+
+    @property
+    def callables(self):
+        return [i.callable for i in self.instruments]
+
+    @property
+    def kwargs(self):
+        return [i.kwargs for i in self.instruments]
 
     def add(self, instrument: Callable, instrument_kwargs: dict):
         """Add a decorator and its kwargs.
@@ -40,14 +54,33 @@ class SklearnMethodInstrumentation:
         :param Callable instrument: The decorator to apply
         :param dict instrument_kwargs: Keyword args for the decorator
         """
+        instrument = ImplementedInstrument(
+            callable=instrument,
+            kwargs=instrument_kwargs,
+        )
         self.instruments.append(instrument)
-        self.instrument_kwargs.append(copy.deepcopy(instrument_kwargs))
         self._wrap_function()
+
+    def contains(self, instrument: Callable, instrument_kwargs: dict) -> bool:
+        """Detect if instrumentation contains instrument.
+
+        Returns ``True`` if instrument with kwargs is already present.
+
+        :param Callable instrument: The decorator to apply
+        :param dict instrument_kwargs: Keyword args for the decorator
+        """
+        instrument = ImplementedInstrument(
+            callable=instrument,
+            kwargs=instrument_kwargs,
+        )
+        if instrument in self.instruments:
+            return True
+        return False
 
     def _wrap_function(self):
         self.wrapper = self.wrapped
-        for instrument, kwargs in zip(self.instruments, self.instrument_kwargs):
-            self.wrapper = instrument(self.wrapper, **kwargs)
+        for instrument in self.instruments:
+            self.wrapper = instrument.callable(self.wrapper, **instrument.kwargs)
 
     def remove(self, instrument: Callable):
         """Remove instances of a decorator.
@@ -58,13 +91,12 @@ class SklearnMethodInstrumentation:
         :param Callable instrument: The decorator to remove
         """
         idxs = []
-        for idx, dec in enumerate(self.instruments):
-            if dec == instrument:
+        for idx, instrumented in enumerate(self.instruments):
+            if instrumented.callable == instrument:
                 idxs.append(idx)
 
         for idx in idxs[::-1]:
             self.instruments.pop(idx)
-            self.instrument_kwargs.pop(idx)
 
         self._wrap_function()
 
@@ -228,7 +260,9 @@ class SklearnInstrumentor:
                 instr,
             )
 
-        instr.add(instrument=self.instrument, instrument_kwargs=dkwargs)
+        if not instr.contains(self.instrument, instrument_kwargs=dkwargs):
+            instr.add(instrument=self.instrument, instrument_kwargs=dkwargs)
+
         setattr(
             estimator,
             method_name,
@@ -482,7 +516,12 @@ class SklearnInstrumentor:
                 instr,
             )
 
-        instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
+        if not instr.contains(
+            self.instrument, instrument_kwargs=self.instrument_kwargs
+        ):
+            instr.add(
+                instrument=self.instrument, instrument_kwargs=self.instrument_kwargs
+            )
         setattr(
             estimator,
             method_name,
@@ -500,8 +539,12 @@ class SklearnInstrumentor:
             instr = SklearnMethodInstrumentation(wrapped_method)
             setattr(estimator, instr_attrib_name, instr)
 
-        instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
-
+        if not instr.contains(
+            self.instrument, instrument_kwargs=self.instrument_kwargs
+        ):
+            instr.add(
+                instrument=self.instrument, instrument_kwargs=self.instrument_kwargs
+            )
         setattr(estimator, method_name, property(instr.wrapper))
 
     def _instrument_delegator(self, delegator: Callable, method_name: str):
@@ -514,8 +557,12 @@ class SklearnInstrumentor:
             instr = SklearnMethodInstrumentation(descriptor.fn)
             setattr(descriptor, instr_attrib_name, instr)
 
-        instr.add(instrument=self.instrument, instrument_kwargs=self.instrument_kwargs)
-
+        if not instr.contains(
+            self.instrument, instrument_kwargs=self.instrument_kwargs
+        ):
+            instr.add(
+                instrument=self.instrument, instrument_kwargs=self.instrument_kwargs
+            )
         setattr(
             descriptor,
             "fn",
