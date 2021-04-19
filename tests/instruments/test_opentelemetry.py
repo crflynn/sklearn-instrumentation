@@ -1,7 +1,7 @@
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace import _Span
-from opentelemetry.sdk.trace.export import SimpleExportSpanProcessor
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from opentelemetry.trace import SpanKind
 
@@ -12,9 +12,7 @@ from sklearn_instrumentation.instruments.opentelemetry import OpenTelemetrySpann
 def test_opentelemetry_spanner(classification_model, iris):
     memory_exporter = InMemorySpanExporter()
     trace.set_tracer_provider(TracerProvider())
-    trace.get_tracer_provider().add_span_processor(
-        SimpleExportSpanProcessor(memory_exporter)
-    )
+    trace.get_tracer_provider().add_span_processor(SimpleSpanProcessor(memory_exporter))
     tracer = trace.get_tracer(__name__)
 
     instrumentor = SklearnInstrumentor(instrument=OpenTelemetrySpanner())
