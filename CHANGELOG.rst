@@ -1,6 +1,13 @@
 Release Changelog
 -----------------
 
+0.7.0 (2021-05-10)
+~~~~~~~~~~~~~~~~~~
+
+* Removed numpy as dependency since it is already a dependency of sklearn
+* Modified instrumentation to prevent double instrumentation of methods
+* Updated dependencies for some instruments
+
 0.6.1 (2021-04-17)
 ~~~~~~~~~~~~~~~~~~
 
