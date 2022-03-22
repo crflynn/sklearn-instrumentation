@@ -208,22 +208,28 @@ class SklearnInstrumentor:
         if isinstance(obj, tuple(self.exclude)):
             return
 
-        if isinstance(obj, BaseEstimator):
-            self._instrument_estimator(
-                estimator=obj, instrument_kwargs=instrument_kwargs
-            )
-
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
+                if isinstance(v, tuple(self.exclude)):
+                    continue
                 if k.startswith(self._get_instrumentation_attribute_prefix()):
                     continue
                 self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
+                if isinstance(v, tuple(self.exclude)):
+                    continue
                 self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
         elif isinstance(obj, Sequence):
             for o in obj:
+                if isinstance(o, tuple(self.exclude)):
+                    continue
                 self._instrument_recursively(obj=o, instrument_kwargs=instrument_kwargs)
+
+        if isinstance(obj, BaseEstimator):
+            self._instrument_estimator(
+                estimator=obj, instrument_kwargs=instrument_kwargs
+            )
 
     def _instrument_instance_method(
         self,
