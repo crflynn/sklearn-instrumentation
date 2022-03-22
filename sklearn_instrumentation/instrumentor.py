@@ -208,11 +208,6 @@ class SklearnInstrumentor:
         if isinstance(obj, tuple(self.exclude)):
             return
 
-        if isinstance(obj, BaseEstimator):
-            self._instrument_estimator(
-                estimator=obj, instrument_kwargs=instrument_kwargs
-            )
-
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
                 if k.startswith(self._get_instrumentation_attribute_prefix()):
@@ -224,6 +219,11 @@ class SklearnInstrumentor:
         elif isinstance(obj, Sequence):
             for o in obj:
                 self._instrument_recursively(obj=o, instrument_kwargs=instrument_kwargs)
+
+        if isinstance(obj, BaseEstimator):
+            self._instrument_estimator(
+                estimator=obj, instrument_kwargs=instrument_kwargs
+            )
 
     def _instrument_instance_method(
         self,
@@ -293,9 +293,6 @@ class SklearnInstrumentor:
         if isinstance(obj, tuple(self.exclude)):
             return
 
-        if isinstance(obj, BaseEstimator):
-            self._uninstrument_estimator(estimator=obj, full=full)
-
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
                 if k.startswith(self._get_instrumentation_attribute_prefix()):
@@ -307,6 +304,9 @@ class SklearnInstrumentor:
         elif isinstance(obj, Sequence):
             for o in obj:
                 self._uninstrument_recursively(obj=o, full=full)
+
+        if isinstance(obj, BaseEstimator):
+            self._uninstrument_estimator(estimator=obj, full=full)
 
     def _uninstrument_estimator(self, estimator: BaseEstimator, full: bool = False):
         if full:
