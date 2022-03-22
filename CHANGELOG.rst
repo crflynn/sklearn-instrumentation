@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.8.0 (2022-03-22)
+~~~~~~~~~~~~~~~~~~
+
+* Change the order of instrumentation so that an estimator is instrumented after its attributes
+
 0.7.0 (2021-05-10)
 ~~~~~~~~~~~~~~~~~~
 
