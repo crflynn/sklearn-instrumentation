@@ -212,6 +212,8 @@ class SklearnInstrumentor:
             for k, v in obj.__dict__.items():
                 if k.startswith(self._get_instrumentation_attribute_prefix()):
                     continue
+                if isinstance(obj, BaseEstimator) and k in self.methods:
+                    continue
                 self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
@@ -296,6 +298,8 @@ class SklearnInstrumentor:
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
                 if k.startswith(self._get_instrumentation_attribute_prefix()):
+                    continue
+                if isinstance(obj, BaseEstimator) and k in self.methods:
                     continue
                 self._uninstrument_recursively(obj=v, full=full)
         elif isinstance(obj, MutableMapping):

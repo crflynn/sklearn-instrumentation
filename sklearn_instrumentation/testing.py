@@ -46,6 +46,8 @@ class SklearnInstrumentionAsserter:
                     SklearnInstrumentor._get_instrumentation_attribute_prefix()
                 ):
                     continue
+                if isinstance(obj, BaseEstimator) and k in self.instrumentor.methods:
+                    continue
                 self._assert_instrumented_recursively(obj=v)
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
@@ -97,6 +99,8 @@ class SklearnInstrumentionAsserter:
                 if k.startswith(
                     SklearnInstrumentor._get_instrumentation_attribute_prefix()
                 ):
+                    continue
+                if isinstance(obj, BaseEstimator) and k in self.instrumentor.methods:
                     continue
                 self._assert_uninstrumented_recursively(obj=v, full=full)
         elif isinstance(obj, MutableMapping):
