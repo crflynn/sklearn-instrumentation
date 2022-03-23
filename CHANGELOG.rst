@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.9.0 (2022-03-22)
+~~~~~~~~~~~~~~~~~~
+
+* Skip instrumentation recursion of estimator attributes which share a name with a method intended to be instrumented
+
 0.8.0 (2022-03-22)
 ~~~~~~~~~~~~~~~~~~
 
