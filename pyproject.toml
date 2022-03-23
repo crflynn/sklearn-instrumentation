@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sklearn-instrumentation"
-version = "0.9.0"
+version = "0.10.0"
 description = "scikit-learn instrumentation tooling"
 authors = ["flynn <crf204@gmail.com>"]
 license = "MIT"
