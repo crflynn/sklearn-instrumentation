@@ -40,6 +40,9 @@ class SklearnInstrumentionAsserter:
                 self._assert_uninstrumented_estimator(estimator=obj, full=full)
             return
 
+        if isinstance(obj, BaseEstimator):
+            self._assert_instrumented_estimator(estimator=obj)
+
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
                 if k.startswith(
@@ -55,9 +58,6 @@ class SklearnInstrumentionAsserter:
         elif isinstance(obj, Sequence):
             for o in obj:
                 self._assert_instrumented_recursively(obj=o)
-
-        if isinstance(obj, BaseEstimator):
-            self._assert_instrumented_estimator(estimator=obj)
 
     def _assert_instrumented_method(
         self,
@@ -94,6 +94,9 @@ class SklearnInstrumentionAsserter:
                 self._assert_uninstrumented_estimator(estimator=obj, full=full)
             return
 
+        if isinstance(obj, BaseEstimator):
+            self._assert_uninstrumented_estimator(estimator=obj, full=full)
+
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
                 if k.startswith(
@@ -109,9 +112,6 @@ class SklearnInstrumentionAsserter:
         elif isinstance(obj, Sequence):
             for o in obj:
                 self._assert_uninstrumented_recursively(obj=o, full=full)
-
-        if isinstance(obj, BaseEstimator):
-            self._assert_uninstrumented_estimator(estimator=obj, full=full)
 
     def _assert_uninstrumented_estimator(
         self, estimator: BaseEstimator, full: bool = False
