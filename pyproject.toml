@@ -105,7 +105,7 @@ line_length = 88
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-rsx --cov=sklearn_instrumentation --cov-report=html"
+#addopts = "-rsx --cov=sklearn_instrumentation --cov-report=html"
 testpaths = [
     "tests",
 ]

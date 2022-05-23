@@ -117,7 +117,14 @@ class SklearnInstrumentionAsserter:
         self, estimator: BaseEstimator, full: bool = False
     ):
         if full:
-            methods = [f.__name__ for f in estimator.__dict__ if callable(f)]
+            methods = []
+            prefix = SklearnInstrumentor._get_instrumentation_attribute_prefix()
+            for name, attr in estimator.__dict__.items():
+                if name.startswith(prefix) and isinstance(
+                    attr, SklearnMethodInstrumentation
+                ):
+                    method = name.replace(prefix, "")
+                    methods.append(method)
         else:
             methods = self.instrumentor.methods
 
