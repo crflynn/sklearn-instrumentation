@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.11.0 (2022-05-22)
+~~~~~~~~~~~~~~~~~~~
+
+* Fix a bug with full uninstrumentation
+
 0.10.0 (2022-03-23)
 ~~~~~~~~~~~~~~~~~~
 
