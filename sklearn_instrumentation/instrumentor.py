@@ -314,7 +314,14 @@ class SklearnInstrumentor:
 
     def _uninstrument_estimator(self, estimator: BaseEstimator, full: bool = False):
         if full:
-            methods = [f.__name__ for f in estimator.__dict__ if callable(f)]
+            methods = []
+            prefix = self._get_instrumentation_attribute_prefix()
+            for name, attr in estimator.__dict__.items():
+                if name.startswith(prefix) and isinstance(
+                    attr, SklearnMethodInstrumentation
+                ):
+                    method = name.replace(prefix, "")
+                    methods.append(method)
         else:
             methods = self.methods
 
