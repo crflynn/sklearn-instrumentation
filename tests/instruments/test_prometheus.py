@@ -21,7 +21,7 @@ def test_prometheus_histogram(classification_model, iris):
     )
     instrumentor = SklearnInstrumentor(instrument=PrometheusHistogram(histogram))
     dkwargs = {"labels": {"model_name": "classifier"}}
-    instrumentor.instrument_estimator(classification_model, instrument_kwargs=dkwargs)
+    instrumentor.instrument_instance(classification_model, instrument_kwargs=dkwargs)
 
     def start_server():
         start_http_server(8000)
@@ -50,7 +50,7 @@ def test_prometheus_histogram_multi(classification_model_multi, iris):
         methods=["transform", "predict", "predict_proba"],
     )
     dkwargs = {"labels": {"model_name": "classifier"}}
-    instrumentor.instrument_estimator(
+    instrumentor.instrument_instance(
         classification_model_multi, instrument_kwargs=dkwargs
     )
 
@@ -79,7 +79,7 @@ def test_prometheus_summary(classification_model, iris):
     )
     instrumentor = SklearnInstrumentor(instrument=PrometheusSummary(summary))
     dkwargs = {"labels": {"model_name": "classifier"}}
-    instrumentor.instrument_estimator(classification_model, instrument_kwargs=dkwargs)
+    instrumentor.instrument_instance(classification_model, instrument_kwargs=dkwargs)
 
     def start_server():
         start_http_server(8000)
@@ -109,7 +109,7 @@ def test_prometheus_summary_multi(classification_model_multi, iris):
         instrument=PrometheusSummary(summary=summary, enumerate_=True)
     )
     dkwargs = {"labels": {"model_name": "classifier"}}
-    instrumentor.instrument_estimator(
+    instrumentor.instrument_instance(
         classification_model_multi, instrument_kwargs=dkwargs
     )
 

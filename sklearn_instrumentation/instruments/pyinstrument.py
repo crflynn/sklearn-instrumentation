@@ -5,6 +5,7 @@ from pathlib import Path
 from pyinstrument import Profiler
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
 
 
 class PyInstrumentProfiler(BaseInstrument):
@@ -29,7 +30,7 @@ class PyInstrumentProfiler(BaseInstrument):
     def __init__(self):
         self.count = 0
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
 
         prof = Profiler(**dkwargs.get("profiler_kwargs", {}))
         text_kwargs = dkwargs.get("text_kwargs", {})

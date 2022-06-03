@@ -16,7 +16,7 @@ def test_opentelemetry_spanner(classification_model, iris):
     tracer = trace.get_tracer(__name__)
 
     instrumentor = SklearnInstrumentor(instrument=OpenTelemetrySpanner())
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
 
     with tracer.start_as_current_span("parent"):
         classification_model.fit(iris.X_train, iris.y_train)
@@ -49,7 +49,7 @@ def test_opentelemetry_spanner(classification_model, iris):
     assert span.kind == SpanKind.INTERNAL
     assert span.parent.span_id == spans[7].context.span_id
     span: _Span = spans[6]
-    assert span.name == "BaseForest.fit"
+    assert span.name == "RandomForestClassifier.fit (BaseForest.fit)"
     assert span.kind == SpanKind.INTERNAL
     assert span.parent.span_id == spans[7].context.span_id
     span: _Span = spans[7]
@@ -62,7 +62,7 @@ def test_opentelemetry_spanner(classification_model, iris):
     assert span.parent is None
 
     memory_exporter.clear()
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
 
     with tracer.start_as_current_span("parent"):
         classification_model.fit(iris.X_train, iris.y_train)

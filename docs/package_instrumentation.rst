@@ -7,7 +7,7 @@ Package instrumentation works by crawling modules and submodules, dynamically im
 
 Since instrumentation is implemented by crawling, package instrumentation can take some time, and will take longer the more packages you include.
 
-If you want to instrument prior to *fitting* a model, use **package** or **class** instrumentation. Generally, metaestimators like ``sklearn.pipeline.Pipeline`` use cloning when fitting, which won't retain instrumentation applied from **estimator** instrumentation.
+If you want to instrument prior to *fitting* a model, use **package** or **class** instrumentation. Generally, metaestimators like ``sklearn.pipeline.Pipeline`` use cloning when fitting, which won't retain instrumentation applied from **instance** instrumentation.
 
 Examples
 --------

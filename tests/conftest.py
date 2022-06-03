@@ -135,7 +135,7 @@ def iris(request):
 
 @pytest.fixture(scope="function")
 def simple_decorator(request):
-    def decorator(func, **dkwargs):
+    def decorator(estimator, func, **dkwargs):
         @wraps(func)
         def wrapper(*args, **kwargs):
             logging.info("hello world")

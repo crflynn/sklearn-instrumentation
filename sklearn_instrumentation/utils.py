@@ -1,3 +1,4 @@
+import functools
 import inspect
 import logging
 import os
@@ -8,6 +9,7 @@ from importlib import import_module
 from inspect import isclass
 from inspect import ismethod
 from pkgutil import walk_packages
+from types import MethodType
 from typing import List
 from typing import Set
 from typing import Type
@@ -15,6 +17,8 @@ from typing import Union
 
 from sklearn.base import BaseEstimator
 from sklearn.utils.metaestimators import _IffHasAttrDescriptor
+
+from sklearn_instrumentation.types import Estimator
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +32,12 @@ def compose_decorators(decorators: List[Callable]) -> Callable:
         combined into a single decorator.
     """
 
-    def composed(func: Callable, **dkwargs) -> Callable:
+    def composed(estimator: Estimator, func: Callable, **dkwargs) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
             wrapped_func = func
             for decorator in decorators:
-                wrapped_func = decorator(wrapped_func, **dkwargs)
+                wrapped_func = decorator(estimator, wrapped_func, **dkwargs)
             return wrapped_func(*args, **kwargs)
 
         return wrapper
@@ -96,7 +100,7 @@ def is_instance_method(func: Callable) -> bool:
     return not is_class_method(func)
 
 
-def get_delegator(func: Callable) -> _IffHasAttrDescriptor:
+def get_descriptor(func: Callable) -> _IffHasAttrDescriptor:
     """Get the corresponding ``_IffHasAttrDescriptor``."""
     for cell in func.__closure__:
         obj = cell.cell_contents
@@ -107,7 +111,7 @@ def get_delegator(func: Callable) -> _IffHasAttrDescriptor:
 def is_delegator(func: Callable) -> bool:
     """Indicate if the method is delegated using ``_IffHasAttrDescriptor``."""
     try:
-        for cell in func.__closure__:
+        for cell in getattr(func, "__closure__", []):
             obj = cell.cell_contents
             if isinstance(obj, _IffHasAttrDescriptor):
                 return True
@@ -116,11 +120,8 @@ def is_delegator(func: Callable) -> bool:
     return False
 
 
-def method_is_inherited(
-    estimator: Union[BaseEstimator, Type[BaseEstimator]], method_name: str
-) -> bool:
+def method_is_inherited(estimator: Estimator, method: Callable) -> bool:
     """Indicate if the estimator's method is inherited from a parent class."""
-    method = getattr(estimator, method_name)
     method_class_name = get_method_class_name(method=method)
 
     try:
@@ -140,7 +141,7 @@ def has_instrumentation(
     if hasattr(estimator, instr_attrib_name):
         return True
     if is_delegator(method):
-        descriptor = get_delegator(method)
+        descriptor = get_descriptor(method)
         if hasattr(descriptor, instr_attrib_name):
             return True
     return False
@@ -209,3 +210,29 @@ def get_estimators_in_package(
             ):
                 base_estimators.add(module_attribute)
     return base_estimators
+
+
+def get_name(estimator: Estimator, func: Union[Callable, MethodType]) -> str:
+    if isinstance(func, MethodType):
+        self_qname = f"{func.__self__.__class__.__qualname__}.{func.__name__}"
+        if self_qname == func.__qualname__:
+            name = func.__qualname__
+        else:
+            name = f"{self_qname} ({func.__qualname__})"
+    else:
+        module = inspect.getmodule(func)
+        cls = getattr(module, func.__qualname__.split(".")[0], None)
+        if isinstance(estimator, type):
+            obj_name = estimator.__qualname__
+        else:
+            obj_name = estimator.__class__.__name__
+        if cls:
+            cls_name = cls.__qualname__
+        else:
+            cls_name = None
+
+        if obj_name == cls_name or cls_name is None:
+            name = func.__qualname__
+        else:
+            name = f"{obj_name}.{func.__name__} ({cls_name}.{func.__name__})"
+    return name

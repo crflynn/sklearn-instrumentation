@@ -1,20 +1,20 @@
-import copy
 import logging
 from collections.abc import MutableMapping
-from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Callable
 from typing import Iterable
 from typing import List
+from typing import Set
 from typing import Type
 
 from sklearn.base import BaseEstimator
+from sklearn.utils.metaestimators import if_delegate_has_method
 
 from sklearn_instrumentation.config import DEFAULT_EXCLUDE
 from sklearn_instrumentation.config import DEFAULT_METHODS
-from sklearn_instrumentation.utils import get_delegator
+from sklearn_instrumentation.types import Estimator
+from sklearn_instrumentation.utils import get_descriptor
 from sklearn_instrumentation.utils import get_estimators_in_package
-from sklearn_instrumentation.utils import get_method_class
 from sklearn_instrumentation.utils import is_delegator
 from sklearn_instrumentation.utils import method_is_inherited
 
@@ -33,9 +33,16 @@ class SklearnMethodInstrumentation:
     :param Callable func: The function to be decorated.
     """
 
-    def __init__(self, func: Callable):
-        self.wrapped = func
-        self.wrapper = func
+    def __init__(
+        self,
+        estimator: Estimator,
+        func: Callable,
+        inherited: bool = False,
+    ):
+        self.estimator = estimator
+        self.func = func
+        self.instrumented_func = func
+        self.inherited = inherited  # for class instrumentation
         self.instruments: List[ImplementedInstrument] = []
 
     @property
@@ -78,9 +85,11 @@ class SklearnMethodInstrumentation:
         return False
 
     def _wrap_function(self):
-        self.wrapper = self.wrapped
+        self.instrumented_func = self.func
         for instrument in self.instruments:
-            self.wrapper = instrument.callable(self.wrapper, **instrument.kwargs)
+            self.instrumented_func = instrument.callable(
+                self.estimator, self.instrumented_func, **instrument.kwargs
+            )
 
     def remove(self, instrument: Callable):
         """Remove instances of a decorator.
@@ -170,8 +179,8 @@ class SklearnInstrumentor:
     def _get_instrumentation_attribute_prefix(cls):
         return "_skli_"
 
-    # region instrumentation estimator
-    def instrument_estimator(
+    # region instrumentation instance
+    def instrument_instance(
         self,
         estimator: BaseEstimator,
         recursive: bool = True,
@@ -188,15 +197,15 @@ class SklearnInstrumentor:
             overriding the ones initialized by the instrumentor
         """
         if recursive:
-            self._instrument_recursively(
+            self._instrument_instance_recursively(
                 obj=estimator, instrument_kwargs=instrument_kwargs
             )
         else:
-            self._instrument_estimator(
+            self._instrument_instance(
                 estimator=estimator, instrument_kwargs=instrument_kwargs
             )
 
-    def _instrument_estimator(self, estimator: BaseEstimator, instrument_kwargs=None):
+    def _instrument_instance(self, estimator: BaseEstimator, instrument_kwargs=None):
         for method_name in self.methods:
             self._instrument_instance_method(
                 estimator=estimator,
@@ -204,12 +213,12 @@ class SklearnInstrumentor:
                 instrument_kwargs=instrument_kwargs,
             )
 
-    def _instrument_recursively(self, obj: object, instrument_kwargs=None):
+    def _instrument_instance_recursively(self, obj: object, instrument_kwargs=None):
         if isinstance(obj, tuple(self.exclude)):
             return
 
         if isinstance(obj, BaseEstimator):
-            self._instrument_estimator(
+            self._instrument_instance(
                 estimator=obj, instrument_kwargs=instrument_kwargs
             )
 
@@ -219,13 +228,19 @@ class SklearnInstrumentor:
                     continue
                 if isinstance(obj, BaseEstimator) and k in self.methods:
                     continue
-                self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
+                self._instrument_instance_recursively(
+                    obj=v, instrument_kwargs=instrument_kwargs
+                )
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
-                self._instrument_recursively(obj=v, instrument_kwargs=instrument_kwargs)
-        elif isinstance(obj, Sequence):
+                self._instrument_instance_recursively(
+                    obj=v, instrument_kwargs=instrument_kwargs
+                )
+        elif isinstance(obj, Iterable):
             for o in obj:
-                self._instrument_recursively(obj=o, instrument_kwargs=instrument_kwargs)
+                self._instrument_instance_recursively(
+                    obj=o, instrument_kwargs=instrument_kwargs
+                )
 
     def _instrument_instance_method(
         self,
@@ -255,7 +270,7 @@ class SklearnInstrumentor:
             None,
         )
         if instr is None:
-            instr = SklearnMethodInstrumentation(method)
+            instr = SklearnMethodInstrumentation(estimator, method)
             setattr(
                 estimator,
                 instr_attrib_name,
@@ -268,13 +283,13 @@ class SklearnInstrumentor:
         setattr(
             estimator,
             method_name,
-            instr.wrapper,
+            instr.instrumented_func,
         )
 
     # endregion
 
     # region uninstrumentation estimator
-    def uninstrument_estimator(
+    def uninstrument_instance(
         self, estimator: BaseEstimator, recursive: bool = True, full: bool = False
     ):
         """Uninstrument a BaseEstimator instance.
@@ -289,14 +304,14 @@ class SklearnInstrumentor:
         if recursive:
             self._uninstrument_recursively(obj=estimator, full=full)
         else:
-            self._uninstrument_estimator(estimator=estimator, full=full)
+            self._uninstrument_instance(estimator=estimator, full=full)
 
     def _uninstrument_recursively(self, obj: object, full: bool = False):
         if isinstance(obj, tuple(self.exclude)):
             return
 
         if isinstance(obj, BaseEstimator):
-            self._uninstrument_estimator(estimator=obj, full=full)
+            self._uninstrument_instance(estimator=obj, full=full)
 
         if hasattr(obj, "__dict__"):
             for k, v in obj.__dict__.items():
@@ -308,11 +323,11 @@ class SklearnInstrumentor:
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
                 self._uninstrument_recursively(obj=v, full=full)
-        elif isinstance(obj, Sequence):
+        elif isinstance(obj, Iterable):
             for o in obj:
                 self._uninstrument_recursively(obj=o, full=full)
 
-    def _uninstrument_estimator(self, estimator: BaseEstimator, full: bool = False):
+    def _uninstrument_instance(self, estimator: BaseEstimator, full: bool = False):
         if full:
             methods = []
             prefix = self._get_instrumentation_attribute_prefix()
@@ -354,16 +369,16 @@ class SklearnInstrumentor:
             setattr(
                 estimator,
                 method_name,
-                instr.wrapped,
+                instr.func,
             )
             delattr(estimator, instr_attrib_name)
         else:
-            setattr(estimator, method_name, instr.wrapper)
+            setattr(estimator, method_name, instr.instrumented_func)
 
     # endregion
 
     # region estimator classes
-    def instrument_estimators_classes(self, estimators: Iterable[BaseEstimator]):
+    def instrument_instances_classes(self, estimators: Iterable[BaseEstimator]):
         """Instrument the classes (not the instances) found in the estimators.
 
         Lighter version of ``instrument_package``. Instead of crawling the package
@@ -379,10 +394,10 @@ class SklearnInstrumentor:
         """
         classes = set()
         for estimator in estimators:
-            classes = classes.union(self._get_estimator_classes(estimator))
+            classes = classes.union(self._get_instance_classes(estimator))
             self.instrument_classes(estimators=classes)
 
-    def instrument_estimator_classes(self, estimator: BaseEstimator):
+    def instrument_instance_classes(self, estimator: BaseEstimator):
         """Instrument the classes (not the instances) found in the estimator.
 
         Lighter version of ``instrument_package``. Instead of crawling the package
@@ -396,10 +411,10 @@ class SklearnInstrumentor:
         :param BaseEstimator estimator: An estimator instance with which to instrument
             related classes
         """
-        classes = self._get_estimator_classes(estimator)
+        classes = self._get_instance_classes(estimator)
         self.instrument_classes(estimators=classes)
 
-    def uninstrument_estimator_classes(
+    def uninstrument_instance_classes(
         self, estimator: BaseEstimator, full: bool = False
     ):
         """Uninstrument the classes (not the instances) found in the estimator.
@@ -411,34 +426,31 @@ class SklearnInstrumentor:
             related classes
         :param bool full: Whether to fully uninstrument the estimator classes.
         """
-        classes = self._get_estimator_classes(estimator)
+        classes = self._get_instance_classes(estimator)
         self.uninstrument_classes(estimators=classes, full=full)
 
-    def _get_estimator_classes(self, obj):
+    def _get_instance_classes(self, obj, seen: Set = None):
+        seen = seen or set()
         classes = set()
         if isinstance(obj, tuple(self.exclude)):
             return classes
 
         if isinstance(obj, BaseEstimator):
-            class_ = obj.__class__
-            classes.add(class_)
-            for k in dir(class_):
-                v = getattr(class_, k, None)
-                if v is None or not callable(v):
-                    continue
-                v = getattr(obj, k, None)
-                if hasattr(v, "__self__") and k in self.methods:
-                    classes.add(get_method_class(class_, k))
+            classes.add(obj.__class__)
+
+        if id(obj) in seen:
+            return classes
+        seen.add(id(obj))
 
         if hasattr(obj, "__dict__"):
             for v in obj.__dict__.values():
-                classes = classes.union(self._get_estimator_classes(v))
+                classes = classes.union(self._get_instance_classes(v, seen))
         elif isinstance(obj, MutableMapping):
             for v in obj.values():
-                classes = classes.union(self._get_estimator_classes(v))
-        elif isinstance(obj, Sequence):
+                classes = classes.union(self._get_instance_classes(v, seen))
+        elif isinstance(obj, Iterable):
             for o in obj:
-                classes = classes.union(self._get_estimator_classes(o))
+                classes = classes.union(self._get_instance_classes(o, seen))
 
         return classes
 
@@ -500,15 +512,12 @@ class SklearnInstrumentor:
         if class_method is None:
             return
 
-        if method_is_inherited(estimator=estimator, method_name=method_name):
-            return
-
         if isinstance(class_method, property):
             self._instrument_property(estimator=estimator, method_name=method_name)
             return
 
         if is_delegator(func=class_method):
-            self._instrument_delegator(delegator=class_method, method_name=method_name)
+            self._instrument_delegator(estimator=estimator, method_name=method_name)
             return
 
         instr_attrib_name = self._get_instrumentation_attribute_name(
@@ -519,8 +528,21 @@ class SklearnInstrumentor:
             instr_attrib_name,
             None,
         )
+        # if the parent is instrumented already, but the current is not
+        if instr and instr.estimator != estimator:
+            class_method = instr.func
+            instr = None
+
         if instr is None:
-            instr = SklearnMethodInstrumentation(class_method)
+            inherited = method_is_inherited(
+                estimator=estimator,
+                method=class_method,
+            )
+            instr = SklearnMethodInstrumentation(
+                estimator=estimator,
+                func=class_method,
+                inherited=inherited,
+            )
             setattr(
                 estimator,
                 instr_attrib_name,
@@ -536,18 +558,30 @@ class SklearnInstrumentor:
         setattr(
             estimator,
             method_name,
-            instr.wrapper,
+            instr.instrumented_func,
         )
 
     def _instrument_property(self, estimator: Type[BaseEstimator], method_name: str):
         instr_attrib_name = self._get_instrumentation_attribute_name(
             method_name=method_name
         )
-        property_: property = getattr(estimator, method_name)
-        wrapped_method = property_.fget
         instr = getattr(estimator, instr_attrib_name, None)
+        # if parent is instrumented but current is not
+        if instr and instr.estimator != estimator:
+            wrapped_method = instr.instrumented_func
+            instr = None
+        else:
+            property_: property = getattr(estimator, method_name)
+            wrapped_method = property_.fget
+
         if instr is None:
-            instr = SklearnMethodInstrumentation(wrapped_method)
+            inherited = method_is_inherited(
+                estimator=estimator,
+                method=wrapped_method,
+            )
+            instr = SklearnMethodInstrumentation(
+                estimator=estimator, func=wrapped_method, inherited=inherited
+            )
             setattr(estimator, instr_attrib_name, instr)
 
         if not instr.contains(
@@ -556,17 +590,25 @@ class SklearnInstrumentor:
             instr.add(
                 instrument=self.instrument, instrument_kwargs=self.instrument_kwargs
             )
-        setattr(estimator, method_name, property(instr.wrapper))
+        setattr(estimator, method_name, property(instr.instrumented_func))
 
-    def _instrument_delegator(self, delegator: Callable, method_name: str):
+    def _instrument_delegator(self, estimator: Type[BaseEstimator], method_name: str):
         instr_attrib_name = self._get_instrumentation_attribute_name(
             method_name=method_name
         )
-        descriptor = get_delegator(delegator)
-        instr = getattr(descriptor, instr_attrib_name, None)
+        instr = getattr(estimator, instr_attrib_name, None)
+        # if parent is instrumented but current is not
+        if instr and instr.estimator != estimator:
+            instr = None
+
+        delegator = getattr(estimator, method_name)
+        descriptor = get_descriptor(delegator)
         if instr is None:
-            instr = SklearnMethodInstrumentation(descriptor.fn)
-            setattr(descriptor, instr_attrib_name, instr)
+            inherited = method_is_inherited(estimator=estimator, method=descriptor.fn)
+            instr = SklearnMethodInstrumentation(
+                estimator=estimator, func=descriptor.fn, inherited=inherited
+            )
+            setattr(estimator, instr_attrib_name, instr)
 
         if not instr.contains(
             self.instrument, instrument_kwargs=self.instrument_kwargs
@@ -575,9 +617,9 @@ class SklearnInstrumentor:
                 instrument=self.instrument, instrument_kwargs=self.instrument_kwargs
             )
         setattr(
-            descriptor,
-            "fn",
-            instr.wrapper,
+            estimator,
+            method_name,
+            if_delegate_has_method(descriptor.delegate_names)(instr.instrumented_func),
         )
 
     # endregion
@@ -644,16 +686,13 @@ class SklearnInstrumentor:
         if class_method is None:
             return
 
-        if method_is_inherited(estimator=estimator, method_name=method_name):
-            return
-
         if isinstance(class_method, property):
             self._uninstrument_property(estimator=estimator, method_name=method_name)
             return
 
         if is_delegator(func=class_method):
             self._uninstrument_delegator(
-                delegator=class_method,
+                estimator=estimator,
                 method_name=method_name,
                 full=full,
             )
@@ -664,55 +703,77 @@ class SklearnInstrumentor:
         if instr is None:
             return
 
+        instr: SklearnMethodInstrumentation
         instr.remove(instrument=self.instrument)
 
         if full or instr.empty():
-            setattr(estimator, method_name, instr.wrapped)
+            if instr.inherited:
+                delattr(estimator, method_name)
+            else:
+                setattr(estimator, method_name, instr.func)
             delattr(estimator, instr_attrib_name)
         else:
-            setattr(estimator, method_name, instr.wrapper)
+            setattr(estimator, method_name, instr.instrumented_func)
 
     def _uninstrument_property(
         self, estimator: Type[BaseEstimator], method_name: str, full: bool = False
     ):
-        instr_attrib_name = self._get_instrumentation_attribute_name(method_name)
+        instr_attrib_name = self._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
         instr = getattr(estimator, instr_attrib_name, None)
-        if instr is None:
+        # if parent is instrumented but current is not
+        if instr is None or instr.estimator != estimator:
             return
 
         instr: SklearnMethodInstrumentation
         instr.remove(instrument=self.instrument)
 
         if full or instr.empty():
+            if instr.inherited:
+                delattr(estimator, method_name)
+            else:
+                setattr(
+                    estimator,
+                    method_name,
+                    property(instr.func),
+                )
+            delattr(estimator, instr_attrib_name)
+        else:
+            setattr(estimator, method_name, property(instr.instrumented_func))
+
+    def _uninstrument_delegator(
+        self, estimator: Type[BaseEstimator], method_name: str, full: bool = False
+    ):
+        instr_attrib_name = self._get_instrumentation_attribute_name(method_name)
+        instr = getattr(estimator, instr_attrib_name, None)
+        # if parent is instrumented but current is not
+        if instr is None or instr.estimator != estimator:
+            return
+
+        instr: SklearnMethodInstrumentation
+        instr.remove(instrument=self.instrument)
+
+        delegator = getattr(estimator, method_name)
+        descriptor = get_descriptor(delegator)
+
+        if full or instr.empty():
+            if instr.inherited:
+                delattr(estimator, method_name)
+            else:
+                setattr(
+                    estimator,
+                    method_name,
+                    if_delegate_has_method(descriptor.delegate_names)(instr.func),
+                )
+            delattr(estimator, instr_attrib_name)
+        else:
             setattr(
                 estimator,
                 method_name,
-                property(instr.wrapped),
+                if_delegate_has_method(descriptor.delegate_names)(
+                    instr.instrumented_func
+                ),
             )
-            delattr(estimator, instr_attrib_name)
-        else:
-            setattr(estimator, method_name, property(instr.wrapper))
-
-    def _uninstrument_delegator(
-        self, delegator: Callable, method_name: str, full: bool = False
-    ):
-        instr_attrib_name = self._get_instrumentation_attribute_name(method_name)
-        descriptor = get_delegator(delegator)
-        instr = getattr(descriptor, instr_attrib_name, None)
-        if instr is None:
-            return
-
-        instr: SklearnMethodInstrumentation
-        instr.remove(instrument=self.instrument)
-
-        if full or instr.empty():
-            setattr(
-                descriptor,
-                "fn",
-                instr.wrapped,
-            )
-            delattr(descriptor, instr_attrib_name)
-        else:
-            setattr(descriptor, "fn", instr.wrapper)
 
     # endregion

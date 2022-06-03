@@ -37,7 +37,7 @@ Instrumentation works by applying decorators to methods of ``BaseEstimator``-der
    :maxdepth: 1
    :caption: Contents:
 
-   estimator_instrumentation
+   instance_instrumentation
    package_instrumentation
    class_instrumentation
    instrumentor

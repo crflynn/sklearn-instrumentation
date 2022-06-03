@@ -8,10 +8,10 @@ def test_cprofiler(classification_model, iris, capsys):
     cprofile_line = """Ordered by: standard name"""
     assert cprofile_line not in capsys.readouterr().out
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert cprofile_line in capsys.readouterr().out
 
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert cprofile_line not in capsys.readouterr().out

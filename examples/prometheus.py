@@ -73,13 +73,13 @@ classification_model = Pipeline(
 X, y = load_iris(return_X_y=True)
 classification_model.fit(X, y)
 
-prom_histogram.instrument_estimator(
+prom_histogram.instrument_instance(
     classification_model, instrument_kwargs={"labels": {"model_name": "mymodel"}}
 )
-# prom_summary.instrument_estimator(
+# prom_summary.instrument_instance(
 #     classification_model, instrument_kwargs={"labels": {"model_name": "mymodel"}}
 # )
-te_instrumentor.instrument_estimator(classification_model)
+te_instrumentor.instrument_instance(classification_model)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)

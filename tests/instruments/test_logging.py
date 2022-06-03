@@ -16,7 +16,7 @@ def test_time_elapsed_logger(classification_model, iris, caplog):
     classification_model.fit(iris.X_train, iris.y_train)
     assert "elapsed time" not in caplog.text
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     expected_message_parts = [
         "Pipeline.predict starting",
@@ -39,7 +39,7 @@ def test_time_elapsed_logger(classification_model, iris, caplog):
         assert expected in record.getMessage()
 
     caplog.clear()
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert len(caplog.records) == 0
 
@@ -50,7 +50,7 @@ def test_getsizeof_logger(classification_model, iris, caplog):
     classification_model.fit(iris.X_train, iris.y_train)
     assert "nbytes" not in caplog.text
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     expected_message_parts = [
         "Pipeline.predict input X nbytes",
@@ -73,7 +73,7 @@ def test_getsizeof_logger(classification_model, iris, caplog):
         assert expected in record.getMessage()
 
     caplog.clear()
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert len(caplog.records) == 0
 
@@ -84,7 +84,7 @@ def test_shape_logger(classification_model, iris, caplog):
     classification_model.fit(iris.X_train, iris.y_train)
     assert "shape" not in caplog.text
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     expected_message_parts = [
         "Pipeline.predict input X shape",
@@ -107,7 +107,7 @@ def test_shape_logger(classification_model, iris, caplog):
         assert expected in record.getMessage()
 
     caplog.clear()
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert len(caplog.records) == 0
 
@@ -118,7 +118,7 @@ def test_column_name_logger(classification_model, iris, caplog):
     classification_model.fit(iris.X_train, iris.y_train)
     assert "columns" not in caplog.text
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(pd.DataFrame(iris.X_test))
     expected_message_parts = [
         "Pipeline.predict input columns",
@@ -131,7 +131,7 @@ def test_column_name_logger(classification_model, iris, caplog):
         assert expected in record.getMessage()
 
     caplog.clear()
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(pd.DataFrame(iris.X_test))
     assert len(caplog.records) == 0
 

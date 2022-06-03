@@ -1,6 +1,14 @@
 Release Changelog
 -----------------
 
+0.12.0 (2022-06-03)
+~~~~~~~~~~~~~~~~~~~
+
+* Breaking: Changed `instrument_estimator` to `instrument_instance`
+* Breaking: Instrument API now includes the class/instance on which instrumentation is applied
+* Bugfix: Class instrumentation now properly handles inherited methods, properties,and delegates.
+* Bugfix: `_get_estimator_classes` method now excludes inherited classes.
+
 0.11.0 (2022-05-22)
 ~~~~~~~~~~~~~~~~~~~
 

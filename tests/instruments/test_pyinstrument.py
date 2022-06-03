@@ -13,10 +13,10 @@ def test_py_instrument_profiler(classification_model, iris, capsys):
     pyinstrument_midline = r""" /_//_/// /_\ / //_// / //_'/ //"""
     assert pyinstrument_midline not in capsys.readouterr().out
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert pyinstrument_midline in capsys.readouterr().out
 
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert pyinstrument_midline not in capsys.readouterr().out

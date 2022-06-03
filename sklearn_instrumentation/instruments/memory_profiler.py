@@ -4,6 +4,7 @@ from functools import wraps
 from memory_profiler import profile
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
 
 
 class MemoryProfiler(BaseInstrument):
@@ -15,7 +16,7 @@ class MemoryProfiler(BaseInstrument):
     ``dkwargs`` are passed to the ``memory_profiler.profile`` function decorator.
     """
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         @wraps(func)
         def wrapper(*args, **kwargs):
             print(func.__qualname__)

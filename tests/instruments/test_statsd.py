@@ -38,7 +38,7 @@ def test_statsd_timer(classification_model, iris):
     )
     classification_model.fit(iris.X_train, iris.y_train)
 
-    instrumentor.instrument_estimator_classes(classification_model)
+    instrumentor.instrument_instance_classes(classification_model)
     classification_model.predict(iris.X_test)
 
     time.sleep(1)
