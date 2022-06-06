@@ -1,4 +1,3 @@
-from typing import Callable
 from typing import Iterable
 from typing import List
 from typing import MutableMapping
@@ -9,7 +8,7 @@ from sklearn.base import BaseEstimator
 
 from sklearn_instrumentation.instrumentor import SklearnInstrumentor
 from sklearn_instrumentation.instrumentor import SklearnMethodInstrumentation
-from sklearn_instrumentation.utils import get_delegator
+from sklearn_instrumentation.utils import get_descriptor
 from sklearn_instrumentation.utils import get_estimators_in_package
 from sklearn_instrumentation.utils import is_delegator
 from sklearn_instrumentation.utils import method_is_inherited
@@ -140,8 +139,11 @@ class SklearnInstrumentionAsserter:
         if isinstance(class_attribute, property):
             return
 
+        instr_attrib_name = SklearnInstrumentor._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
         instr: SklearnMethodInstrumentation = getattr(
-            estimator, f"_skli_{method_name}", None
+            estimator, instr_attrib_name, None
         )
         if full:
             assert instr is None
@@ -176,9 +178,6 @@ class SklearnInstrumentionAsserter:
         if class_method is None:
             return
 
-        if method_is_inherited(estimator=estimator, method_name=method_name):
-            return
-
         if isinstance(class_method, property):
             self._assert_instrumented_property(
                 estimator=estimator, method_name=method_name
@@ -187,14 +186,22 @@ class SklearnInstrumentionAsserter:
 
         if is_delegator(func=class_method):
             self._assert_instrumented_delegator(
-                delegator=class_method, method_name=method_name
+                estimator=estimator, method_name=method_name
             )
             return
 
-        instr = getattr(estimator, f"_skli_{method_name}")
+        instr_attrib_name = SklearnInstrumentor._get_instrumentation_attribute_name(
+            method_name=method_name
+        )
+        instr: SklearnMethodInstrumentation = getattr(estimator, instr_attrib_name)
         if hasattr(estimator, method_name):
             assert instr is not None
             assert self.instrumentor.instrument in instr.callables
+            try:
+                assert instr.estimator == estimator
+            except AssertionError:
+                pass
+            assert instr.inherited == method_is_inherited(estimator, instr.func)
         else:
             assert instr is None
 
@@ -204,25 +211,35 @@ class SklearnInstrumentionAsserter:
         instr_attrib_name = SklearnInstrumentor._get_instrumentation_attribute_name(
             method_name=method_name
         )
-        property_: property = getattr(estimator, method_name)
         instr: SklearnMethodInstrumentation = getattr(estimator, instr_attrib_name)
+        try:
+            assert instr.estimator == estimator
+        except AssertionError:
+            pass
+        assert instr.inherited == method_is_inherited(estimator, instr.func)
+
+        property_: property = getattr(estimator, method_name)
 
         assert self.instrumentor.instrument in instr.callables
         assert self.instrumentor.instrument_kwargs in instr.kwargs
-        assert instr.wrapper == property_.fget
+        assert instr.instrumented_func == property_.fget
 
-    def _assert_instrumented_delegator(self, delegator: Callable, method_name: str):
+    def _assert_instrumented_delegator(
+        self, estimator: Type[BaseEstimator], method_name: str
+    ):
         instr_attrib_name = SklearnInstrumentor._get_instrumentation_attribute_name(
             method_name=method_name
         )
-        descriptor = get_delegator(delegator)
-        instr: SklearnMethodInstrumentation = getattr(
-            descriptor, instr_attrib_name, None
-        )
+        instr = getattr(estimator, instr_attrib_name, None)
+        assert instr.estimator == estimator
+        assert instr.inherited == method_is_inherited(estimator, instr.func)
+
+        delegator = getattr(estimator, method_name)
+        descriptor = get_descriptor(delegator)
 
         assert self.instrumentor.instrument in instr.callables
         assert self.instrumentor.instrument_kwargs in instr.kwargs
-        assert instr.wrapper == descriptor.fn
+        assert instr.instrumented_func == descriptor.fn
 
     def assert_uninstrumented_packages(
         self, package_names: List[str], full: bool = False
@@ -257,9 +274,6 @@ class SklearnInstrumentionAsserter:
         if class_method is None:
             return
 
-        if method_is_inherited(estimator=estimator, method_name=method_name):
-            return
-
         if isinstance(class_method, property):
             self._assert_uninstrumented_property(
                 estimator=estimator, method_name=method_name, full=full
@@ -268,16 +282,26 @@ class SklearnInstrumentionAsserter:
 
         if is_delegator(func=class_method):
             self._assert_uninstrumented_delegator(
-                delegator=class_method, method_name=method_name, full=full
+                estimator=estimator, method_name=method_name, full=full
             )
             return
 
-        instr = getattr(estimator, f"_skli_{method_name}", None)
+        instr_attrib_name = SklearnInstrumentor._get_instrumentation_attribute_name(
+            method_name
+        )
+        instr = getattr(estimator, instr_attrib_name, None)
         if full:
             assert instr is None
 
         if instr is not None:
             assert self.instrumentor.instrument not in instr.callables
+            assert instr.func == class_method
+            assert instr.estimator == estimator
+            assert instr.inherited == method_is_inherited(estimator, class_method)
+            if instr.inherited:
+                assert method_name not in estimator.__dict__
+            else:
+                assert method_name in estimator.__dict__
 
     def _assert_uninstrumented_property(
         self, estimator: Type[BaseEstimator], method_name: str, full: bool = False
@@ -296,23 +320,28 @@ class SklearnInstrumentionAsserter:
             assert self.instrumentor.instrument not in instr.callables
             assert self.instrumentor.instrument_kwargs not in instr.kwargs
             property_: property = getattr(estimator, method_name)
-            assert instr.wrapped == property_.fget
+            assert instr.func == property_.fget
+            assert instr.estimator == estimator
+            assert instr.inherited == method_is_inherited(estimator, property_.fget)
 
     def _assert_uninstrumented_delegator(
-        self, delegator: Callable, method_name: str, full: bool = False
+        self, estimator: Type[BaseEstimator], method_name: str, full: bool = False
     ):
         instr_attrib_name = SklearnInstrumentor._get_instrumentation_attribute_name(
             method_name=method_name
         )
         instr: SklearnMethodInstrumentation = getattr(
-            delegator, instr_attrib_name, None
+            estimator, instr_attrib_name, None
         )
 
         if full:
             assert instr is None
 
         if instr is not None:
+            delegator = getattr(estimator, method_name)
+            descriptor = get_descriptor(delegator)
             assert self.instrumentor.instrument not in instr.callables
             assert self.instrumentor.instrument_kwargs not in instr.kwargs
-            descriptor = get_delegator(delegator)
-            assert instr.wrapped == descriptor.fn
+            assert instr.func == descriptor.fn
+            assert instr.estimator == estimator
+            assert instr.inherited == method_is_inherited(estimator, descriptor.fn)

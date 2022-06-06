@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn_instrumentation import SklearnInstrumentor
 from sklearn_instrumentation.utils import compose_decorators
 from sklearn_instrumentation.utils import get_arg_by_key
-from sklearn_instrumentation.utils import get_delegator
+from sklearn_instrumentation.utils import get_descriptor
 from sklearn_instrumentation.utils import get_estimators_in_packages
 from sklearn_instrumentation.utils import get_sklearn_estimator_from_method
 from sklearn_instrumentation.utils import has_instrumentation
@@ -28,7 +28,8 @@ def test_compose_decorators(simple_decorator, caplog):
     def noop(*args, **kwargs):
         pass
 
-    noop = double_simple(noop)
+    est = BaseEstimator()
+    noop = double_simple(est, noop)
     noop()
 
     assert len(caplog.records) == 2
@@ -64,10 +65,10 @@ def test_is_instance_method():
     assert is_instance_method(RandomForestClassifier().fit)
 
 
-def test_get_delegator():
-    assert get_delegator(Pipeline.predict) is not None
+def test_get_descriptor():
+    assert get_descriptor(Pipeline.predict) is not None
     with pytest.raises(TypeError):
-        get_delegator(Pipeline.fit)
+        get_descriptor(Pipeline.fit)
 
 
 def test_is_delegator():
@@ -76,12 +77,12 @@ def test_is_delegator():
 
 
 def test_method_is_inherited():
-    assert method_is_inherited(RandomForestClassifier, "fit")
-    assert method_is_inherited(RandomForestClassifier(), "fit")
-    assert not method_is_inherited(StandardScaler, "transform")
-    assert not method_is_inherited(StandardScaler(), "transform")
-    with pytest.raises(AttributeError):
-        method_is_inherited(RandomForestClassifier(), "transform")
+    assert method_is_inherited(RandomForestClassifier, RandomForestClassifier.fit)
+    rfc = RandomForestClassifier()
+    assert method_is_inherited(rfc, rfc.fit)
+    assert not method_is_inherited(StandardScaler, StandardScaler.transform)
+    ss = StandardScaler()
+    assert not method_is_inherited(ss, ss.transform)
 
 
 def test_has_instrumentation(simple_decorator, iris):

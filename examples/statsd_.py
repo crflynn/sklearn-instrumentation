@@ -40,6 +40,6 @@ if __name__ == "__main__":
     instrumentor = SklearnInstrumentor(
         instrument=timer, instrument_kwargs={"prefix": "mymodel"}
     )
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     while True:
         classification_model.predict(X)

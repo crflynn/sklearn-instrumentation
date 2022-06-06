@@ -31,7 +31,7 @@ def test_ddtrace_spanner(classification_model, iris):
     t.configure(writer=LogWriter(out=out))
     instrumentor = SklearnInstrumentor(instrument=DatadogSpanner(tracer=t))
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
 
     with t.start_span("parent"):
         classification_model.predict(iris.X_test)
@@ -46,18 +46,24 @@ def test_ddtrace_spanner(classification_model, iris):
     assert all_spans[1]["parent_id"] == all_spans[0]["span_id"]
     assert all_spans[2]["name"] == "StandardScaler.transform"
     assert all_spans[2]["parent_id"] == all_spans[1]["span_id"]
-    assert all_spans[3]["name"] == "_BasePCA.transform"
+    assert all_spans[3]["name"] == "PCA.transform (_BasePCA.transform)"
     assert all_spans[3]["parent_id"] == all_spans[1]["span_id"]
     assert all_spans[4]["name"] == "TransformerWithEnum.transform"
     assert all_spans[4]["parent_id"] == all_spans[0]["span_id"]
-    assert all_spans[5]["name"] == "ForestClassifier.predict"
+    assert (
+        all_spans[5]["name"]
+        == "RandomForestClassifier.predict (ForestClassifier.predict)"
+    )
     assert all_spans[5]["parent_id"] == all_spans[0]["span_id"]
-    assert all_spans[6]["name"] == "ForestClassifier.predict_proba"
+    assert (
+        all_spans[6]["name"]
+        == "RandomForestClassifier.predict_proba (ForestClassifier.predict_proba)"
+    )
     assert all_spans[6]["parent_id"] == all_spans[5]["span_id"]
     assert all_spans[7]["name"] == "parent"
     assert all_spans[7]["parent_id"] == "0000000000000000"
 
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
 
     with t.start_span("parent"):
         classification_model.predict(iris.X_test)

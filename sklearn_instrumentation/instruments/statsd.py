@@ -5,6 +5,7 @@ from functools import wraps
 from statsd import StatsClient
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
 
 
 class StatsdTimer(BaseInstrument):
@@ -24,7 +25,7 @@ class StatsdTimer(BaseInstrument):
         self.enumerate = enumerate_
         self.enumerations = defaultdict(list)
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         if self.enumerate:
             key = str(sorted({**dkwargs, "func": func}.items()))
             try:

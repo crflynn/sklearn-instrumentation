@@ -5,6 +5,7 @@ from functools import wraps
 from sys import getsizeof
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
 from sklearn_instrumentation.utils import get_arg_by_key
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,7 @@ class ColumnNameLogger(BaseInstrument):
     Only works if X is a pandas DataFrame.
     """
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         @wraps(func)
         def wrapper(*args, **kwargs):
             X = get_arg_by_key(func, args, "X")
@@ -35,7 +36,7 @@ class ColumnNameLogger(BaseInstrument):
 class ShapeLogger(BaseInstrument):
     """Instrument which logs the shape of X on input and output."""
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         @wraps(func)
         def wrapper(*args, **kwargs):
             X = get_arg_by_key(func, args, "X")
@@ -51,7 +52,7 @@ class ShapeLogger(BaseInstrument):
 class GetSizeOfLogger(BaseInstrument):
     """Instrument which logs ``sys.getsizeof(X)`` on input and output."""
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         @wraps(func)
         def wrapper(*args, **kwargs):
             X = get_arg_by_key(func, args, "X")
@@ -67,7 +68,7 @@ class GetSizeOfLogger(BaseInstrument):
 class TimeElapsedLogger(BaseInstrument):
     """Instrument which logs execution time elapsed."""
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         @wraps(func)
         def wrapper(*args, **kwargs):
             logger.info(f"{func.__qualname__} starting.")

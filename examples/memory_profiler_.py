@@ -31,7 +31,7 @@ if __name__ == "__main__":
     profiler = MemoryProfiler()
     instrumentor = SklearnInstrumentor(instrument=profiler)
 
-    instrumentor.instrument_estimator(
+    instrumentor.instrument_instance(
         classification_model,
     )
 

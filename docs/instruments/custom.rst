@@ -8,9 +8,10 @@ The package comes with a handful of instruments which log information about ``X`
     from functools import wraps
 
 
-    def my_instrument(func, **dkwargs):
+    def my_instrument(obj func, **dkwargs):
         """Wrap an estimator method with instrumentation.
 
+        :param obj: The class or instance on which to apply instrumentation
         :param func: The method to be instrumented.
         :param dkwargs: Decorator kwargs, which can be passed to the
             decorator at decoration time. For estimator instrumentation
@@ -48,10 +49,11 @@ To create a stateful instrument, inherit from the ``BaseInstrument`` class and u
             # handle any statefulness here
             pass
 
-        def __call__(self, func, **dkwargs):
+        def __call__(obj, self, func, **dkwargs):
             """Wrap an estimator method with instrumentation.
 
-            :param func: The method to be instrumented.
+           :param obj: The class or instance on which to apply instrumentation
+           :param func: The method to be instrumented.
             :param dkwargs: Decorator kwargs, which can be passed to the
                 decorator at decoration time. For estimator instrumentation
                 this allows different parametrizations for each ml model.
@@ -79,7 +81,7 @@ To pass decorator kwargs for different ml models using ``dkwargs``:
 
     instrumentor = SklearnInstrumentor(instrument=my_instrument)
 
-    instrumentor.instrument_estimator(estimator=ml_model_1, decorator_kwargs={"name": "awesome_model"})
-    instrumentor.instrument_estimator(estimator=ml_model_2, decorator_kwargs={"name": "better_model"})
+    instrumentor.instrument_instance(estimator=ml_model_1, decorator_kwargs={"name": "awesome_model"})
+    instrumentor.instrument_instance(estimator=ml_model_2, decorator_kwargs={"name": "better_model"})
 
 

@@ -8,6 +8,7 @@ from prometheus_client.metrics import MetricWrapperBase
 from prometheus_client.metrics import _validate_labelnames
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
 from sklearn_instrumentation.utils import wraps
 
 
@@ -21,7 +22,7 @@ class BasePrometheus(BaseInstrument):
         self.enumerate = enumerate_
         self.enumerations = defaultdict(list)
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         labels = {"qualname": func.__qualname__}
         labels.update(dkwargs.get("labels", {}))
 

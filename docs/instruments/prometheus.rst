@@ -44,7 +44,7 @@ Example usage:
 
     classification_model.fit(X, y)
 
-    instrumentor.instrument_estimator(
+    instrumentor.instrument_instance(
         classification_model, instrument_kwargs={"labels": {"model_name": "mymodel"}}
     )
 

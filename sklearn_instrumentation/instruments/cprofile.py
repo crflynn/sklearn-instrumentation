@@ -4,6 +4,7 @@ from functools import wraps
 from pathlib import Path
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
 
 
 class CProfiler(BaseInstrument):
@@ -25,7 +26,7 @@ class CProfiler(BaseInstrument):
     def __init__(self):
         self.count = 0
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
         out_dir = dkwargs.get("out_dir", None)
         profiler_kwargs = dkwargs.get("profiler_kwargs", {})
         print_kwargs = dkwargs.get("print_kwargs", {})

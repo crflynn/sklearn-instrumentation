@@ -10,10 +10,10 @@ from sklearn_instrumentation.testing import SklearnInstrumentionAsserter
 
 def test_instrumentation(classification_model, simple_decorator, full):
     instrumentor = SklearnInstrumentor(instrument=simple_decorator)
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     asserter = SklearnInstrumentionAsserter(instrumentor=instrumentor)
     asserter.assert_instrumented_estimator(classification_model)
-    instrumentor.uninstrument_estimator(classification_model, full=full)
+    instrumentor.uninstrument_instance(classification_model, full=full)
     asserter.assert_uninstrumented_estimator(classification_model, full=full)
 
 
@@ -28,11 +28,11 @@ def test_package_instrumentation(simple_decorator, full):
 
 def test_class_instrumentation(classification_model, simple_decorator, full):
     instrumentor = SklearnInstrumentor(instrument=simple_decorator)
-    instrumentor.instrument_estimator_classes(classification_model)
+    instrumentor.instrument_instance_classes(classification_model)
     asserter = SklearnInstrumentionAsserter(instrumentor=instrumentor)
-    classes = instrumentor._get_estimator_classes(classification_model)
+    classes = instrumentor._get_instance_classes(classification_model)
     asserter.assert_instrumented_classes(estimators=classes)
-    instrumentor.uninstrument_estimator_classes(classification_model, full=full)
+    instrumentor.uninstrument_instance_classes(classification_model, full=full)
     asserter.assert_uninstrumented_classes(classes, full=full)
 
 
@@ -54,7 +54,7 @@ def test_no_duplicate_instrumentation(caplog, simple_decorator):
     X, y = load_iris(return_X_y=True)
 
     instrumentor = SklearnInstrumentor(instrument=simple_decorator)
-    instrumentor.instrument_estimator(meta_estimator)
+    instrumentor.instrument_instance(meta_estimator)
 
     meta_estimator.fit(X, y)
     # assert once for meta_estimator + once for dummy

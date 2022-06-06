@@ -5,6 +5,8 @@ from ddtrace import Tracer
 from ddtrace import tracer as ddtracer
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
+from sklearn_instrumentation.types import Estimator
+from sklearn_instrumentation.utils import get_name
 
 
 class DatadogSpanner(BaseInstrument):
@@ -17,13 +19,14 @@ class DatadogSpanner(BaseInstrument):
     def __init__(self, tracer: Tracer = None):
         self.tracer = tracer or ddtracer
 
-    def __call__(self, func: Callable, **dkwargs):
+    def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
+        name = get_name(estimator, func)
 
         tracer = self.tracer
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            with tracer.trace(func.__qualname__, **dkwargs):
+            with tracer.trace(name, **dkwargs):
                 return func(*args, **kwargs)
 
         return wrapper

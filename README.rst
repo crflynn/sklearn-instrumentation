@@ -135,8 +135,8 @@ Full example:
     classification_model.predict(X)
 
 
-Machine learning model instrumentation
---------------------------------------
+Machine learning model (instance) instrumentation
+-------------------------------------------------
 
 Instrument any sklearn compatible trained estimator or metaestimator.
 
@@ -145,7 +145,7 @@ Instrument any sklearn compatible trained estimator or metaestimator.
     from sklearn_instrumentation import SklearnInstrumentor
 
     instrumentor = SklearnInstrumentor(instrument=my_instrument)
-    instrumentor.instrument_estimator(estimator=my_ml_pipeline)
+    instrumentor.instrument_instance(estimator=my_ml_pipeline)
 
 
 Example:
@@ -173,7 +173,7 @@ Example:
     instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
 
     # Apply the decorator to all BaseEstimators in each of these libraries
-    instrumentor.instrument_estimator(rf)
+    instrumentor.instrument_instance(rf)
 
     # Observe the logging output
     rf.predict(X)
@@ -183,7 +183,7 @@ Example:
     # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict elapsed time: 0.014327764511108398 seconds
 
     # Remove the decorator from all BaseEstimators in each of these libraries
-    instrumentor.uninstrument_estimator(rf)
+    instrumentor.uninstrument_instance(rf)
 
     # No more logging
     rf.predict(X)
@@ -199,9 +199,10 @@ The package comes with a handful of instruments which log information about ``X`
     from functools import wraps
 
 
-    def my_instrumentation(func, **dkwargs):
+    def my_instrumentation(estimator, func, **dkwargs):
         """Wrap an estimator method with instrumentation.
 
+        :param obj: The class or instance on which to apply instrumentation
         :param func: The method to be instrumented.
         :param dkwargs: Decorator kwargs, which can be passed to the
             decorator at decoration time. For estimator instrumentation
@@ -239,9 +240,10 @@ To create a stateful instrument, use a class with the ``__call__`` method for im
             # handle any statefulness here
             pass
 
-        def __call__(self, func, **dkwargs):
+        def __call__(self, estimator, func, **dkwargs):
             """Wrap an estimator method with instrumentation.
 
+            :param obj: The class or instance on which to apply instrumentation
             :param func: The method to be instrumented.
             :param dkwargs: Decorator kwargs, which can be passed to the
                 decorator at decoration time. For estimator instrumentation
@@ -270,6 +272,6 @@ To pass kwargs for different ml models:
 
     instrumentor = SklearnInstrumentor(instrument=my_instrument)
 
-    instrumentor.instrument_estimator(estimator=ml_model_1, instrument_kwargs={"name": "awesome_model"})
-    instrumentor.instrument_estimator(estimator=ml_model_2, instrument_kwargs={"name": "better_model"})
+    instrumentor.instrument_instance(estimator=ml_model_1, instrument_kwargs={"name": "awesome_model"})
+    instrumentor.instrument_instance(estimator=ml_model_2, instrument_kwargs={"name": "better_model"})
 

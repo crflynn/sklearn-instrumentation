@@ -18,7 +18,7 @@ Example usage:
     profiler = MemoryProfiler()
     instrumentor = SklearnInstrumentor(instrument=profiler)
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
 
     classification_model.fit(X, y)
     classification_model.predict(X)

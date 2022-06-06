@@ -23,10 +23,10 @@ def test_memory_profiler(classification_model, iris, capsys):
     )
     assert memory_profiler_header not in capsys.readouterr().out
 
-    instrumentor.instrument_estimator(classification_model)
+    instrumentor.instrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert memory_profiler_header in capsys.readouterr().out
 
-    instrumentor.uninstrument_estimator(classification_model)
+    instrumentor.uninstrument_instance(classification_model)
     classification_model.predict(iris.X_test)
     assert memory_profiler_header not in capsys.readouterr().out

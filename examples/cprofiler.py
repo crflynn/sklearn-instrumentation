@@ -35,7 +35,7 @@ if __name__ == "__main__":
         instrument=profiler, instrument_kwargs={"out_dir": os.getcwd() + "/../.ignore"}
     )
 
-    instrumentor.instrument_estimator(
+    instrumentor.instrument_instance(
         classification_model,
     )
 
