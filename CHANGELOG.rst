@@ -1,7 +1,7 @@
 Release Changelog
 -----------------
 
-0.12.0 (2022-06-03)
+0.12.0 (2022-06-06)
 ~~~~~~~~~~~~~~~~~~~
 
 * Breaking: Changed `instrument_estimator` to `instrument_instance`
