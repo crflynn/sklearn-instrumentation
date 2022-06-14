@@ -6,6 +6,7 @@ from pyinstrument import Profiler
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
 from sklearn_instrumentation.types import Estimator
+from sklearn_instrumentation.utils import get_name
 
 
 class PyInstrumentProfiler(BaseInstrument):
@@ -31,6 +32,7 @@ class PyInstrumentProfiler(BaseInstrument):
         self.count = 0
 
     def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
+        name = get_name(estimator, func)
 
         prof = Profiler(**dkwargs.get("profiler_kwargs", {}))
         text_kwargs = dkwargs.get("text_kwargs", {})
@@ -45,7 +47,7 @@ class PyInstrumentProfiler(BaseInstrument):
             retval = func(*args, **kwargs)
             prof.stop()
             if text_kwargs is not None:
-                print(func.__qualname__)
+                print(name)
                 print(prof.output_text(**text_kwargs))
             if html_dir is not None:
                 with open(

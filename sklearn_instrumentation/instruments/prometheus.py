@@ -9,6 +9,7 @@ from prometheus_client.metrics import _validate_labelnames
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
 from sklearn_instrumentation.types import Estimator
+from sklearn_instrumentation.utils import get_name
 from sklearn_instrumentation.utils import wraps
 
 
@@ -23,7 +24,9 @@ class BasePrometheus(BaseInstrument):
         self.enumerations = defaultdict(list)
 
     def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
-        labels = {"qualname": func.__qualname__}
+        name = get_name(estimator, func)
+
+        labels = {"qualname": name}
         labels.update(dkwargs.get("labels", {}))
 
         if self.enumerate:

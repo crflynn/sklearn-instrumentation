@@ -781,7 +781,7 @@ statsd = ["statsd"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.7.0"
-content-hash = "c2d763667a4c6631bb04beb4a8da596e9c28e3565cd819e8f94ffc4fdc02ce75"
+content-hash = "e0d31f3d6004e4fcffdd4c19117068d0446edc0da87e1dc1b2fec749ca6f9987"
 
 [metadata.files]
 alabaster = [

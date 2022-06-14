@@ -5,6 +5,7 @@ from memory_profiler import profile
 
 from sklearn_instrumentation.instruments.base import BaseInstrument
 from sklearn_instrumentation.types import Estimator
+from sklearn_instrumentation.utils import get_name
 
 
 class MemoryProfiler(BaseInstrument):
@@ -17,9 +18,11 @@ class MemoryProfiler(BaseInstrument):
     """
 
     def __call__(self, estimator: Estimator, func: Callable, **dkwargs):
+        name = get_name(estimator, func)
+
         @wraps(func)
         def wrapper(*args, **kwargs):
-            print(func.__qualname__)
+            print(name)
             return profile(func, **dkwargs)(*args, **kwargs)
 
         return wrapper

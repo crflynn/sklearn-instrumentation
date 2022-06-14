@@ -3,7 +3,7 @@ sklearn-instrumentation
 
 |actions| |rtd| |pypi| |pyversions|
 
-.. |actions| image:: https://github.com/crflynn/sklearn-instrumentation/workflows/build/badge.svg
+.. |actions| image:: https://github.com/crflynn/sklearn-instrumentation/actions/workflows/build.yml/badge.svg
     :target: https://github.com/crflynn/sklearn-instrumentation/actions
 
 .. |rtd| image:: https://img.shields.io/readthedocs/sklearn-instrumentation.svg
@@ -135,8 +135,8 @@ Full example:
     classification_model.predict(X)
 
 
-Machine learning model (instance) instrumentation
--------------------------------------------------
+Instance instrumentation
+------------------------
 
 Instrument any sklearn compatible trained estimator or metaestimator.
 
@@ -189,10 +189,106 @@ Example:
     rf.predict(X)
 
 
-Instrumentation
----------------
+Instance class instrumentation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The package comes with a handful of instruments which log information about ``X`` or timing of execution. You can create your own instrumentation just by creating a decorator, following this pattern
+During fitting, some metaestimators will copy estimator instances using scikit-learn's ``clone`` function. This results in cloned fitted estimators not having instrumentation. To get around this we can instrument the classes rather than the instances.
+
+.. code-block:: python
+
+    from sklearn.datasets import load_iris
+    from sklearn.decomposition import PCA
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.pipeline import FeatureUnion
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    from sklearn_instrumentation import SklearnInstrumentor
+    from sklearn_instrumentation.instruments.logging import TimeElapsedLogger
+
+    logging.basicConfig(level=logging.INFO)
+
+    ss = StandardScaler()
+    pca = PCA(n_components=3)
+    rf = RandomForestClassifier()
+    classification_model = Pipeline(
+        steps=[
+            (
+                "fu",
+                FeatureUnion(
+                    transformer_list=[
+                        ("ss", ss),
+                        ("pca", pca),
+                    ]
+                ),
+            ),
+            ("rf", rf),
+        ]
+    )
+    X, y = load_iris(return_X_y=True)
+
+    instrumentor = SklearnInstrumentor(instrument=TimeElapsedLogger())
+    instrumentor.instrument_instance_classes(classification_model)
+
+    classification_model.fit(X, y)
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline._fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline._fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.fit elapsed time: 0.0006749629974365234 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.fit elapsed time: 0.0007731914520263672 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform elapsed time: 0.00016427040100097656 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform elapsed time: 0.0002810955047607422 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:PCA._fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:PCA._fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:PCA._fit elapsed time: 0.0004239082336425781 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:PCA._fit elapsed time: 0.0005612373352050781 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline._fit elapsed time: 0.002705097198486328 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline._fit elapsed time: 0.002802133560180664 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:BaseForest.fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:BaseForest.fit starting.
+    # INFO:sklearn_instrumentation.instruments.logging:BaseForest.fit elapsed time: 0.16085195541381836 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:BaseForest.fit elapsed time: 0.16097569465637207 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.fit elapsed time: 0.1639721393585205 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.fit elapsed time: 0.16404390335083008 seconds
+    classification_model.predict(X)
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.predict starting.
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.predict starting.
+    # INFO:sklearn_instrumentation.instruments.logging:FeatureUnion.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:FeatureUnion.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform elapsed time: 0.0001049041748046875 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:StandardScaler.transform elapsed time: 0.00017309188842773438 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:_BasePCA.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:_BasePCA.transform starting.
+    # INFO:sklearn_instrumentation.instruments.logging:_BasePCA.transform elapsed time: 0.0001690387725830078 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:_BasePCA.transform elapsed time: 0.00023698806762695312 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:FeatureUnion.transform elapsed time: 0.0008630752563476562 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:FeatureUnion.transform elapsed time: 0.0009222030639648438 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict starting.
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict starting.
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict_proba starting.
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict_proba starting.
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict_proba elapsed time: 0.01138925552368164 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict_proba elapsed time: 0.011497974395751953 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict elapsed time: 0.011577844619750977 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:ForestClassifier.predict elapsed time: 0.011635780334472656 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.predict elapsed time: 0.012682199478149414 seconds
+    # INFO:sklearn_instrumentation.instruments.logging:Pipeline.predict elapsed time: 0.012733936309814453 seconds
+
+    instrumentor.uninstrument_instance_classes(classification_model)
+
+    classification_model.predict(X)
+
+Instruments
+-----------
+
+The package comes with a handful of instruments which log information about ``X`` or timing of execution. You can create your own instrument just by creating a decorator, following this pattern
 
 .. code-block:: python
 
