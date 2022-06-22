@@ -26,11 +26,13 @@ DEFAULT_EXCLUDE = [bytes, str, np.ndarray, Enum, BaseDecisionTree]
 #: and ``transform``.
 DEFAULT_METHODS = [
     "_fit",
+    "_fit_transform",
     "_predict",
     "_predict_log_proba",
     "_predict_proba",
     "_transform",
     "fit",
+    "fit_transform",
     "predict",
     "predict_log_proba",
     "predict_proba",

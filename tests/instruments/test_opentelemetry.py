@@ -22,41 +22,60 @@ def test_opentelemetry_spanner(classification_model, iris):
         classification_model.fit(iris.X_train, iris.y_train)
 
     spans = memory_exporter.get_finished_spans()
-    assert len(spans) > 0
+    assert len(spans) == 13
 
     span: _Span = spans[0]
     assert span.name == "StandardScaler.fit"
     assert span.kind == SpanKind.INTERNAL
-    assert span.parent.span_id == spans[5].context.span_id
+    assert span.parent.span_id == spans[2].context.span_id
     span: _Span = spans[1]
     assert span.name == "StandardScaler.transform"
     assert span.kind == SpanKind.INTERNAL
-    assert span.parent.span_id == spans[5].context.span_id
+    assert span.parent.span_id == spans[2].context.span_id
     span: _Span = spans[2]
-    assert span.name == "PCA._fit"
+    assert span.name == "StandardScaler.fit_transform (TransformerMixin.fit_transform)"
     assert span.kind == SpanKind.INTERNAL
     assert span.parent.span_id == spans[5].context.span_id
     span: _Span = spans[3]
-    assert span.name == "TransformerWithEnum.fit"
+    assert span.name == "PCA._fit"
     assert span.kind == SpanKind.INTERNAL
-    assert span.parent.span_id == spans[5].context.span_id
+    assert span.parent.span_id == spans[4].context.span_id
     span: _Span = spans[4]
-    assert span.name == "TransformerWithEnum.transform"
+    assert span.name == "PCA.fit_transform"
     assert span.kind == SpanKind.INTERNAL
     assert span.parent.span_id == spans[5].context.span_id
     span: _Span = spans[5]
-    assert span.name == "Pipeline._fit"
+    assert span.name == "FeatureUnion.fit_transform"
     assert span.kind == SpanKind.INTERNAL
-    assert span.parent.span_id == spans[7].context.span_id
+    assert span.parent.span_id == spans[9].context.span_id
     span: _Span = spans[6]
-    assert span.name == "RandomForestClassifier.fit (BaseForest.fit)"
+    assert span.name == "TransformerWithEnum.fit"
     assert span.kind == SpanKind.INTERNAL
-    assert span.parent.span_id == spans[7].context.span_id
+    assert span.parent.span_id == spans[8].context.span_id
     span: _Span = spans[7]
-    assert span.name == "Pipeline.fit"
+    assert span.name == "TransformerWithEnum.transform"
     assert span.kind == SpanKind.INTERNAL
     assert span.parent.span_id is spans[8].context.span_id
     span: _Span = spans[8]
+    assert (
+        span.name
+        == "TransformerWithEnum.fit_transform (TransformerMixin.fit_transform)"
+    )
+    assert span.kind == SpanKind.INTERNAL
+    assert span.parent.span_id is spans[9].context.span_id
+    span: _Span = spans[9]
+    assert span.name == "Pipeline._fit"
+    assert span.kind == SpanKind.INTERNAL
+    assert span.parent.span_id is spans[11].context.span_id
+    span: _Span = spans[10]
+    assert span.name == "RandomForestClassifier.fit (BaseForest.fit)"
+    assert span.kind == SpanKind.INTERNAL
+    assert span.parent.span_id is spans[11].context.span_id
+    span: _Span = spans[11]
+    assert span.name == "Pipeline.fit"
+    assert span.kind == SpanKind.INTERNAL
+    assert span.parent.span_id is spans[12].context.span_id
+    span: _Span = spans[12]
     assert span.name == "parent"
     assert span.kind == SpanKind.INTERNAL
     assert span.parent is None
