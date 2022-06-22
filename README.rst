@@ -21,11 +21,13 @@ Generalized instrumentation tooling for scikit-learn models. ``sklearn_instrumen
 Instrumentation applies decorators to methods of ``BaseEstimator``-derived classes or instances. By default the instrumentor applies instrumentation to the following methods (except when they are properties of instances):
 
 * fit
+* fit_transform
 * predict
 * predict_log_proba
 * predict_proba
 * transform
 * _fit
+* _fit_transform
 * _predict
 * _predict_log_proba
 * _predict_proba
