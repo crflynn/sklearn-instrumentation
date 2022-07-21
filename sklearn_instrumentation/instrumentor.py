@@ -530,7 +530,11 @@ class SklearnInstrumentor:
         )
         # if the parent is instrumented already, but the current is not
         if instr and instr.estimator != estimator:
-            class_method = instr.func
+            if method_is_inherited(
+                estimator=estimator,
+                method=class_method,
+            ):
+                class_method = instr.func
             instr = None
 
         if instr is None:
