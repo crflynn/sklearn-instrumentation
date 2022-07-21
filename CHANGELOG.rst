@@ -1,6 +1,11 @@
 Release Changelog
 -----------------
 
+0.13.0 (2022-07-21)
+~~~~~~~~~~~~~~~~~~~
+
+* Bugfix: Class method instrumentation now properly handles inherited methods when parent classes are instrumented first.
+
 0.12.0 (2022-06-06)
 ~~~~~~~~~~~~~~~~~~~
 
